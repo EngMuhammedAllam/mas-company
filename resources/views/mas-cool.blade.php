@@ -1,3 +1,9 @@
+@php
+    $contactSetting = $contactSetting ?? null;
+    $whatsappSource = $contactSetting?->whatsapp_number ?: $contactSetting?->phone;
+    $whatsappNumber = preg_replace('/\D+/', '', (string) $whatsappSource);
+    $whatsappUrl = $whatsappNumber !== '' ? 'https://wa.me/'.$whatsappNumber : '#contact';
+@endphp
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
@@ -99,7 +105,7 @@
         .header{position:sticky;top:0;z-index:60;height:var(--header-h);display:flex;align-items:center;background:rgba(248,251,251,.92);backdrop-filter:blur(16px);border-bottom:1px solid transparent;transition:border-color .2s ease,box-shadow .2s ease}
         .header.is-stuck{border-bottom-color:var(--line);box-shadow:0 2px 14px rgba(5,43,57,.05)}
         .header__inner{display:grid;grid-template-columns:minmax(220px,1fr) auto minmax(220px,1fr);align-items:center;gap:24px;width:min(var(--container),100% - var(--gutter) * 2);margin-inline:auto}
-        .brand{display:flex;align-items:center;gap:10px;grid-column:1;justify-self:end}
+        .brand{display:flex;align-items:center;gap:10px;grid-column:1;justify-self:right}
         .brand__mark{width:38px;height:38px;padding:7px;border-radius:10px;color:var(--lime);background:var(--navy);flex:none}
         .brand__word{font-family:Arial,sans-serif;font-size:23px;line-height:1.1;font-weight:800;letter-spacing:-1.1px;direction:ltr}
         .brand__tag{font-size:10px;line-height:1.4;color:var(--muted-soft)}
@@ -110,7 +116,7 @@
         .nav a:hover{color:var(--navy);background:var(--ice)}
         .nav a.active{color:var(--navy)}
         .nav a.active:after{transform:scaleX(1)}
-        .header__cta{grid-column:3;justify-self:start;min-height:42px;padding:8px 18px;font-size:13px}
+        .header__cta{grid-column:3;justify-self:left;min-height:42px;padding:8px 18px;font-size:13px}
         .menu-toggle{display:none;width:42px;height:42px;border:1px solid var(--line);border-radius:var(--r-sm);background:#fff;color:var(--navy);font-size:19px}
         .nav__head,.nav__cta,.nav-scrim{display:none}
 
@@ -186,8 +192,12 @@
         /* ============================================================
            7. EQUIPMENT
            ============================================================ */
-        .equipment{background:linear-gradient(180deg,#eaf2f4 0%,var(--paper) 62%)}
-        .equipment__toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+        .equipment{padding-block:64px;background:linear-gradient(180deg,#eaf2f4 0%,var(--paper) 62%)}
+        .equipment__panel{margin-bottom:24px;padding:28px 30px 0;border:1px solid var(--line);border-radius:var(--r-lg);background:rgba(255,255,255,.72);box-shadow:var(--shadow-sm)}
+        .equipment .section-head{align-items:center;margin-bottom:22px}
+        .equipment .section-head .btn{flex:none;background:var(--navy);border-color:var(--navy);color:#fff}
+        .equipment .section-head .btn:hover{background:var(--navy-mid);border-color:var(--navy-mid)}
+        .equipment__toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0;padding:12px 0 14px;border-top:1px solid var(--line)}
         .filters{display:flex;align-items:center;gap:2px;min-width:0;overflow-x:auto;scrollbar-width:none}
         .filters::-webkit-scrollbar{display:none}
         .filter{flex:none;min-height:36px;padding:6px 14px;border:0;border-radius:var(--r-sm);background:transparent;font-size:13px;font-weight:700;color:var(--muted);white-space:nowrap;transition:background .2s ease,color .2s ease}
@@ -247,20 +257,24 @@
         /* ============================================================
            10. PROCESS — RTL flow 01 → 02 → 03, right to left
            ============================================================ */
-        .process{background:#fff}
-        .process__head{max-width:600px}
-        .steps{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:46px}
-        /* connector aligns with the centre of the number nodes */
-        .steps:before{content:"";position:absolute;top:0;right:16.6%;left:16.6%;height:1px;background:repeating-linear-gradient(90deg,var(--line) 0 6px,transparent 6px 12px)}
-        .step{position:relative;border:1px solid var(--line-soft);border-radius:var(--r-lg);background:#fff;padding:0 22px 22px;text-align:center;transition:border-color .2s ease,transform .2s ease,box-shadow .2s ease}
+        .process{overflow:hidden;background:linear-gradient(180deg,#fff 0%,#f1f6f8 100%)}
+        .process__head{max-width:720px;margin-inline:auto;text-align:center}
+        .process__head .eyebrow-label{justify-content:center}
+        .process__head .section-desc{margin-inline:auto}
+        .steps{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:42px}
+        .steps:before{display:none}
+        .step{position:relative;min-height:168px;border:1px solid var(--line);border-radius:var(--r-lg);background:rgba(255,255,255,.9);padding:30px 24px 24px;text-align:right;box-shadow:var(--shadow-sm);transition:border-color .2s ease,transform .2s ease,box-shadow .2s ease}
         .step:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:#b9ccd4}
-        .step__number{width:42px;height:42px;border-radius:50%;background:#fff;border:1px solid var(--line);display:grid;place-items:center;margin:-21px auto 14px;font-weight:800;font-size:12px;color:var(--muted);position:relative;z-index:1;transition:background .2s ease,border-color .2s ease,color .2s ease}
-        /* the closing step is the conversion moment — it carries the accent */
-        .step--final .step__number{background:var(--lime);border-color:var(--lime);color:var(--navy)}
-        .step--final{border-color:#cfe08f}
-        .step__icon{width:46px;height:46px;border-radius:var(--r-md);background:var(--ice);display:grid;place-items:center;margin:0 auto 10px;color:var(--navy)}
-        .step h3{font-size:17px;line-height:1.5}
-        .step p{font-size:13.5px;line-height:1.7;color:var(--muted);max-width:30ch;margin:4px auto 0}
+        .step:not(:last-child):after{content:"←";position:absolute;z-index:2;left:-29px;top:calc(50% - 16px);width:32px;height:32px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;background:var(--paper);color:var(--lime-deep);font-size:15px;font-weight:800}
+        .step__number{position:absolute;z-index:1;top:-18px;right:24px;width:38px;height:38px;border-radius:50%;background:var(--navy);border:3px solid var(--paper);display:grid;place-items:center;margin:0;font-weight:800;font-size:11px;color:#fff;box-shadow:0 0 0 1px var(--line)}
+        .step__body{display:grid;grid-template-columns:52px 1fr;grid-template-rows:auto auto;align-items:center;gap:2px 15px}
+        .step__icon{grid-column:1;grid-row:1/3;width:52px;height:52px;border-radius:var(--r-md);background:var(--ice);display:grid;place-items:center;margin:0;color:var(--navy)}
+        .step h3{grid-column:2;font-size:18px;line-height:1.5}
+        .step p{grid-column:2;font-size:13.5px;line-height:1.7;color:var(--muted);max-width:32ch;margin:2px 0 0}
+        .step--final{border-color:var(--navy);background:var(--navy);color:#fff}
+        .step--final .step__number{background:var(--lime);border-color:var(--paper);color:var(--navy);box-shadow:0 0 0 1px var(--lime)}
+        .step--final .step__icon{background:var(--lime);color:var(--navy)}
+        .step--final p{color:#c5d5dc}
 
         /* ============================================================
            11. FAQ
@@ -303,6 +317,14 @@
         .field--full{grid-column:1/-1}
         .form .btn{width:100%;margin-top:14px}
         .form__note{font-size:11px;line-height:1.7;color:var(--muted);text-align:center;margin-top:9px}
+
+        /* persistent WhatsApp contact entry point */
+        .whatsapp-float{position:fixed;z-index:70;right:20px;bottom:max(20px,env(safe-area-inset-bottom));width:52px;height:52px;border:3px solid #fff;border-radius:50%;display:grid;place-items:center;background:#25d366;color:#fff;box-shadow:0 8px 24px rgba(3,29,39,.24);transition:transform .2s ease,background-color .2s ease,box-shadow .2s ease}
+        .whatsapp-float:hover{transform:translateY(-3px) scale(1.03);background:#20bd5a;box-shadow:0 12px 30px rgba(3,29,39,.3)}
+        .whatsapp-float:focus-visible{outline:3px solid rgba(37,211,102,.35);outline-offset:3px}
+        .whatsapp-float svg{display:block;width:27px;height:27px;fill:currentColor}
+        .whatsapp-float__label{position:absolute;right:calc(100% + 11px);width:max-content;max-width:190px;padding:7px 11px;border-radius:var(--r-sm);background:var(--navy);color:#fff;font-size:11.5px;font-weight:700;opacity:0;visibility:hidden;transform:translateX(6px);transition:opacity .2s ease,transform .2s ease,visibility .2s ease}
+        .whatsapp-float:hover .whatsapp-float__label,.whatsapp-float:focus-visible .whatsapp-float__label{opacity:1;visibility:visible;transform:none}
 
         /* ============================================================
            13. FOOTER
@@ -408,31 +430,39 @@
             .brand__mark{width:36px;height:36px}
             .brand__word{font-size:21px}
 
-            /* ---- hero: tighter, image closer to the copy ---- */
+            /* ---- hero: compact mobile composition ---- */
             .hero{border-radius:0}
-            .hero__grid{padding:22px 0 18px;gap:16px}
-            .hero h1{margin:10px 0 10px;letter-spacing:-1.2px;line-height:1.16}
-            .hero__lead{font-size:15.5px;line-height:1.7;margin-bottom:18px;max-width:38ch}
-            .hero__actions{gap:8px}
-            .hero__actions .btn{width:100%}
-            .hero__actions .btn--outline{min-height:46px;font-weight:700;border-color:rgba(255,255,255,.2)}
-            /* three proofs as a compact two-row grid instead of a loose wrap */
-            .hero__proof{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin-top:12px;padding-top:11px}
-            .hero__proof-item{font-size:12px}
-            .hero__visual{aspect-ratio:auto;height:clamp(214px,57vw,262px);max-height:none;border-radius:var(--r-md);mask-image:none;background-size:contain;background-position:center;background-color:#04222e}
-            .hero__frame{inset:8px}
-            .hero__tag{right:12px;top:12px}
-            .hero__badge{right:12px;bottom:12px;max-width:calc(100% - 24px)}
-            .hero__trust-grid{grid-template-columns:1fr}
-            .trust__item{padding:9px 0;gap:10px;align-items:center}
-            .trust__item+.trust__item{border-right:0;border-top:1px solid rgba(255,255,255,.1)}
+            .hero__grid{padding:14px 0 12px;gap:12px}
+            .eyebrow{font-size:10.5px;gap:7px}
+            .hero h1{max-width:12ch;margin:7px 0 7px;font-size:clamp(34px,10vw,40px);letter-spacing:-1px;line-height:1.12}
+            .hero__lead{font-size:14.5px;line-height:1.65;margin-bottom:12px;max-width:40ch}
+            .hero__actions{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:8px}
+            .hero__actions .btn{width:auto;min-width:0;min-height:46px;padding-inline:10px;font-size:13px}
+            .hero__actions .btn--outline{font-weight:700;border-color:rgba(255,255,255,.2)}
+            .hero__proof{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:10px;padding-top:10px}
+            .hero__proof-item{justify-content:center;gap:4px;font-size:10.5px;line-height:1.45;text-align:center}
+            .hero__proof-item i{width:14px;height:14px}
+            .hero__visual{aspect-ratio:auto;height:clamp(176px,46vw,215px);max-height:none;border-radius:var(--r-md);mask-image:none;background-size:contain;background-position:center;background-color:#04222e}
+            .hero__frame{inset:6px}
+            .hero__tag{right:10px;top:10px;padding:5px 9px;font-size:10.5px}
+            .hero__badge{right:10px;bottom:10px;max-width:calc(100% - 20px);padding:6px 9px;font-size:10.5px}
+            .hero__trust{background:rgba(3,29,39,.16)}
+            .hero__trust-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+            .trust__item{display:grid;grid-template-columns:18px 1fr;gap:6px;padding:10px 7px;align-items:center;text-align:right}
+            .trust__item+.trust__item{border-right:1px solid rgba(255,255,255,.1);border-top:0}
             .trust__item .icon{width:18px;height:18px}
-            .trust__item strong{font-size:13px;line-height:1.5}
-            .trust__item p{font-size:11px;line-height:1.5}
+            .trust__item strong{font-size:11px;line-height:1.45}
+            .trust__item p{display:none}
 
             /* ---- categories: 2x2, compact ---- */
             .section-head{margin-bottom:20px;gap:12px}
             .section-desc{font-size:14.5px;margin-top:6px}
+            .categories-section{padding-block:42px}
+            .categories-section .section-head{align-items:stretch;margin-bottom:18px;text-align:center}
+            .categories-section .section-head__text{max-width:none}
+            .categories-section .eyebrow-label{justify-content:center}
+            .categories-section .section-title{max-width:15ch;margin-inline:auto;font-size:clamp(30px,8.5vw,34px);line-height:1.25;letter-spacing:-.8px}
+            .categories-section .section-desc{max-width:32ch;margin-inline:auto}
             .categories{grid-template-columns:1fr 1fr;gap:12px}
             .category-card{padding:6px;border-radius:16px}
             .category-card:before{top:13px;right:13px;font-size:10px}
@@ -444,19 +474,25 @@
 
             /* ---- products ---- */
             .products{grid-template-columns:1fr;gap:14px}
+            .equipment{padding-block:42px}
+            .equipment__panel{margin-bottom:14px;padding:18px 14px 12px;border-radius:16px}
+            .equipment .section-head{align-items:stretch;margin-bottom:12px;gap:8px;text-align:center}
+            .equipment .section-head__text{max-width:none}
+            .equipment .section-head .eyebrow-label{justify-content:center}
+            .equipment .section-head .section-title{max-width:12ch;margin-inline:auto;font-size:clamp(29px,8vw,32px);line-height:1.22;letter-spacing:-.7px}
+            .equipment .section-head .section-desc{max-width:32ch;margin-inline:auto;font-size:13.5px;line-height:1.65}
+            .equipment .section-head .btn{min-height:46px}
             .section-head .btn{width:100%}
-            .equipment__toolbar{flex-direction:column;align-items:stretch;gap:6px;padding-bottom:8px}
-            /* real RTL scroller: bleeds to the screen edge, nothing clipped at rest */
-            .filters{position:relative;margin-inline:calc(var(--gutter) * -1);padding-inline:var(--gutter);scroll-padding-inline:var(--gutter);scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
-            /* tighter tabs so the whole set fits without clipping at 390px and up */
-            .filter{flex:0 0 auto;scroll-snap-align:start;padding:6px 10px;font-size:12.5px}
-            .filters-wrap{position:relative}
-            /* fade cue showing the row continues past the left edge */
-            .filters-wrap:after{content:"";position:absolute;top:0;bottom:0;left:calc(var(--gutter) * -1);width:28px;pointer-events:none;background:linear-gradient(270deg,rgba(242,247,248,0),#eef5f6);opacity:0;transition:opacity .2s ease}
-            .filters-wrap.has-more:after{opacity:1}
-            .results{text-align:right;font-size:12px}
+            .equipment__toolbar{display:block;padding:10px 0 0}
+            /* one compact row; it scrolls only on the narrowest phones */
+            .filters-wrap{position:relative;overflow:hidden}
+            .filters{display:flex;gap:4px;margin:0;padding:0;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+            .filter{flex:0 0 auto;min-height:38px;padding:6px 8px;background:var(--ice);font-size:10.5px;line-height:1.4;white-space:nowrap;scroll-snap-align:start}
+            .filters-wrap:after{display:none}
+            .results{display:block;text-align:center;font-size:11px;margin-top:6px}
             .product{padding:6px;border-radius:18px;gap:0}
-            .product .media{aspect-ratio:16/10;max-height:232px}
+            .product .media{aspect-ratio:16/9;max-height:190px}
+            .product .media--sq{--zoom:1.12}
             .product__flag{top:14px;right:14px;font-size:10px}
             .product__body{padding:12px 8px 4px}
             .product__desc{font-size:14px;margin:4px 0 12px}
@@ -467,10 +503,11 @@
 
             /* ---- visit banner ---- */
             .visit__inner{padding:40px 0 38px}
-            .visit__copy h2{max-width:14ch}
-            .visit__copy p{font-size:14.5px;margin:8px 0 18px;max-width:34ch}
+            .visit__copy{display:flex;flex-direction:column;align-items:center;text-align:center}
+            .visit__copy h2{max-width:14ch;margin-inline:auto}
+            .visit__copy p{font-size:14.5px;margin:8px auto 18px;max-width:34ch}
             .visit__copy .btn{width:100%}
-            .visit__note{margin-top:14px;font-size:12px}
+            .visit__note{justify-content:center;margin-top:14px;font-size:12px;text-align:center}
 
             /* ---- why mas cool ---- */
             .advice__lead{font-size:14.5px;margin:8px 0 16px}
@@ -482,13 +519,19 @@
             .advice__caption{right:12px;bottom:12px;border-radius:var(--r-sm);padding:9px 14px;font-size:11.5px}
 
             /* ---- process: one continuous vertical timeline ---- */
+            .process__head{text-align:right}
+            .process__head .eyebrow-label{justify-content:flex-start}
+            .process__head .section-desc{margin-inline:0}
             .steps{grid-template-columns:1fr;gap:0;margin-top:26px}
-            .steps:before{content:"";top:19px;bottom:40px;right:19px;left:auto;width:2px;height:auto;background:var(--line-soft)}
-            .step{display:grid;grid-template-columns:38px 1fr;column-gap:14px;align-items:start;border:0;border-radius:0;background:transparent;padding:0 0 22px;text-align:right;box-shadow:none}
+            .steps:before{content:"";display:block;top:19px;bottom:40px;right:19px;left:auto;width:2px;height:auto;background:var(--line-soft)}
+            .step{display:grid;grid-template-columns:38px 1fr;column-gap:14px;align-items:start;min-height:0;border:0;border-radius:0;background:transparent;padding:0 0 22px;text-align:right;box-shadow:none}
             .step:hover{transform:none;box-shadow:none}
+            .step:not(:last-child):after{display:none}
             .step:last-child{padding-bottom:0}
-            .step__number{width:38px;height:38px;margin:0;font-size:11px;background:#fff;border:2px solid var(--line)}
+            .step__number{position:relative;top:auto;right:auto;width:38px;height:38px;margin:0;font-size:11px;background:#fff;border:2px solid var(--line);color:var(--navy);box-shadow:none}
             .step--final .step__number{border-color:var(--lime)}
+            .step--final{color:var(--navy)}
+            .step--final p{color:var(--muted)}
             .step__body{display:grid;grid-template-columns:auto 1fr;align-items:center;column-gap:10px;row-gap:2px;padding-top:4px}
             .step__icon{width:30px;height:30px;border-radius:9px;margin:0;grid-row:1}
             .step__icon .icon{width:17px;height:17px}
@@ -504,13 +547,20 @@
             .faq details p{font-size:13.5px;padding-bottom:14px}
 
             /* ---- contact ---- */
-            .contact__grid{gap:20px}
-            .contact__copy h2{max-width:16ch}
-            .contact__copy p{font-size:14.5px;max-width:none}
-            .form{padding:20px;border-radius:18px}
-            .form__grid{grid-template-columns:1fr;gap:12px}
-            .field input,.field select,.field textarea{min-height:50px;font-size:16px}
-            .field textarea{min-height:84px;height:84px}
+            .contact{padding-block:40px}
+            .contact__grid{gap:14px}
+            .contact__copy h2{max-width:16ch;margin-top:6px;font-size:clamp(30px,8.5vw,34px);line-height:1.2}
+            .contact__copy p{font-size:14px;line-height:1.65;margin-top:6px;max-width:none}
+            .form{padding:16px;border-radius:16px}
+            .form__grid{grid-template-columns:1fr;gap:9px}
+            .field label{margin-bottom:4px;font-size:12px}
+            .field input,.field select,.field textarea{min-height:46px;padding-block:8px;font-size:15px}
+            .field textarea{min-height:70px;height:70px}
+            .form .btn{min-height:48px;margin-top:10px}
+            .form__note{margin-top:6px;line-height:1.5}
+            .whatsapp-float{right:14px;bottom:max(14px,env(safe-area-inset-bottom));width:48px;height:48px}
+            .whatsapp-float svg{width:24px;height:24px}
+            .whatsapp-float__label{display:none}
             /* native select arrow sits on the correct side for RTL */
             .field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%235c737e' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-position:left 14px center;background-size:11px 7px;background-repeat:no-repeat;padding-left:36px}
 
@@ -523,6 +573,11 @@
             .footer__links a{font-size:13px;margin:3px 0}
             .footer__start .footer__links-row{display:flex;flex-wrap:wrap;gap:8px}
             .footer__bottom{margin-top:18px;padding-top:12px;font-size:11.5px;gap:6px}
+        }
+
+        @media(min-width:480px) and (max-width:680px){
+            .contact .form__grid{grid-template-columns:1fr 1fr}
+            .contact .field:nth-child(n+3){grid-column:1/-1}
         }
 
         /* narrow phones: the three actions no longer fit on one row */
@@ -558,14 +613,14 @@
 <header class="header"><div class="header__inner">
     <a class="brand" href="#top" aria-label="mas Cool الرئيسية"><svg class="brand__mark" aria-hidden="true"><use href="#snow"/></svg><div><div class="brand__word">mas Cool</div><div class="brand__tag">معدات التبريد الصناعي</div></div></a>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="nav" aria-label="فتح القائمة">☰</button>
-    <nav class="nav" id="nav" aria-label="القائمة الرئيسية" aria-hidden="false" tabindex="-1"><div class="nav__head"><span class="nav__title">القائمة</span><button class="nav__close" type="button" aria-label="إغلاق القائمة">×</button></div><a class="active" href="#top">الرئيسية</a><a href="#equipment">المعدات</a><a href="#about">لماذا mas Cool</a><a href="#contact">تواصل معنا</a><a class="btn btn--dark nav__cta" href="#contact">اطلب عرض سعر <span class="arrow" aria-hidden="true">←</span></a></nav>
-    <a class="btn btn--dark header__cta" href="#contact">اطلب عرض سعر <span class="arrow" aria-hidden="true">←</span></a>
+    <nav class="nav" id="nav" aria-label="القائمة الرئيسية" aria-hidden="false" tabindex="-1"><div class="nav__head"><span class="nav__title">القائمة</span><button class="nav__close" type="button" aria-label="إغلاق القائمة">×</button></div><a class="active" href="#top">الرئيسية</a><a href="#equipment">المعدات</a><a href="#about">لماذا mas Cool</a><a href="#contact">تواصل معنا</a><a class="btn btn--dark nav__cta" href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" data-whatsapp-message="مرحبًا mas Cool، أرغب في طلب عرض سعر.">اطلب عرض سعر <span class="arrow" aria-hidden="true">←</span></a></nav>
+    <a class="btn btn--dark header__cta" href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" data-whatsapp-message="مرحبًا mas Cool، أرغب في طلب عرض سعر.">اطلب عرض سعر <span class="arrow" aria-hidden="true">←</span></a>
 </div></header>
 
 <main id="main">
 <section class="hero" aria-labelledby="hero-title">
     <div class="container hero__grid">
-        <div class="hero__copy"><p class="eyebrow">mas Cool · معدات التبريد الصناعي</p><h1 id="hero-title">قوة التبريد.<span>ثقة الاختيار.</span></h1><p class="hero__lead">معدات تبريد مستوردة، تعاينها وتختبرها قبل الشراء. اختر المعدة المناسبة وراجع تفاصيلها قبل القرار.</p><div class="hero__actions"><a class="btn btn--lime" href="#equipment">استكشف المعدات <span class="arrow" aria-hidden="true">←</span></a><a class="btn btn--outline" href="#contact">احجز معاينة</a></div><div class="hero__proof" aria-label="مزايا سريعة"><span class="hero__proof-item"><i aria-hidden="true">✓</i> فحص قبل الشراء</span><span class="hero__proof-item"><i aria-hidden="true">✓</i> اختيارات متعددة</span><span class="hero__proof-item"><i aria-hidden="true">✓</i> دعم فني متخصص</span></div></div>
+        <div class="hero__copy"><p class="eyebrow">mas Cool · معدات التبريد الصناعي</p><h1 id="hero-title">قوة التبريد.<span>ثقة الاختيار.</span></h1><p class="hero__lead">معدات تبريد مستوردة، تعاينها وتختبرها قبل الشراء. اختر المعدة المناسبة وراجع تفاصيلها قبل القرار.</p><div class="hero__actions"><a class="btn btn--lime" href="#equipment">استكشف المعدات <span class="arrow" aria-hidden="true">←</span></a><a class="btn btn--outline" href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" data-whatsapp-message="مرحبًا mas Cool، أرغب في حجز موعد لمعاينة معدات التبريد.">احجز معاينة</a></div><div class="hero__proof" aria-label="مزايا سريعة"><span class="hero__proof-item"><i aria-hidden="true">✓</i> فحص قبل الشراء</span><span class="hero__proof-item"><i aria-hidden="true">✓</i> اختيارات متعددة</span><span class="hero__proof-item"><i aria-hidden="true">✓</i> دعم فني متخصص</span></div></div>
         <div class="hero__visual" role="img" aria-label="كباس تبريد صناعي أخضر على خلفية رسم هندسي"><span class="hero__frame" aria-hidden="true"></span><span class="hero__tag">جاهز للمعاينة</span><span class="hero__badge"><i aria-hidden="true"></i> معاينة واختبار قبل الشراء</span></div>
     </div>
     <div class="hero__trust" aria-label="مميزات الخدمة"><div class="container hero__trust-grid">
@@ -575,7 +630,7 @@
     </div></div>
 </section>
 
-<section class="section section--compact" aria-labelledby="categories-title"><div class="container">
+<section class="section section--compact categories-section" aria-labelledby="categories-title"><div class="container">
     <div class="section-head"><div class="section-head__text"><p class="eyebrow-label">01 / تصفح حسب النوع</p><h2 class="section-title" id="categories-title">كل ما يحتاجه نظام التبريد</h2><p class="section-desc">مجموعة متكاملة من معدات التبريد الصناعي بمواصفات عالمية.</p></div></div>
     <div class="categories">
         <button class="category-card" type="button" data-category="compressors"><span class="media media--sq"><img src="/mas-cool-assets/compressor-green.png" width="1672" height="941" loading="lazy" decoding="async" alt="كباس تبريد نصف مغلق باللون الأخضر"></span><span class="category-card__body"><span class="cat-text"><span class="cat-title">كباسات</span><span class="cat-sub">كباسات نصف مغلقة</span></span><span class="round-arrow" aria-hidden="true">←</span></span></button>
@@ -586,8 +641,10 @@
 </div></section>
 
 <section class="section equipment" id="equipment" aria-labelledby="equipment-title"><div class="container">
-    <div class="section-head"><div class="section-head__text"><p class="eyebrow-label">02 / معدات مختارة</p><h2 class="section-title" id="equipment-title">معدات تستحق نظرة أقرب</h2><p class="section-desc">معدات مختارة بعناية من أفضل العلامات، راجع مواصفاتها قبل الزيارة.</p></div><a class="btn btn--outline" href="#contact">اسأل عن معدة محددة <span class="arrow" aria-hidden="true">←</span></a></div>
-    <div class="equipment__toolbar"><div class="filters-wrap"><div class="filters" role="group" aria-label="تصفية المعدات"><button class="filter" data-filter="all" aria-pressed="true">الكل</button><button class="filter" data-filter="compressors" aria-pressed="false">كباسات</button><button class="filter" data-filter="coils" aria-pressed="false">كويلات</button><button class="filter" data-filter="units" aria-pressed="false">وحدات تبريد</button><button class="filter" data-filter="condensers" aria-pressed="false">كوندنسرات</button></div></div><span class="results" id="results" role="status"></span></div>
+    <div class="equipment__panel">
+        <div class="section-head"><div class="section-head__text"><p class="eyebrow-label">02 / معدات مختارة</p><h2 class="section-title" id="equipment-title">معدات تستحق نظرة أقرب</h2><p class="section-desc">معدات مختارة بعناية من أفضل العلامات، راجع مواصفاتها قبل الزيارة.</p></div><a class="btn btn--outline" href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" data-whatsapp-message="مرحبًا mas Cool، أبحث عن معدة محددة وأحتاج مساعدة في الاختيار.">اسأل عن معدة محددة <span class="arrow" aria-hidden="true">←</span></a></div>
+        <div class="equipment__toolbar"><div class="filters-wrap"><div class="filters" role="group" aria-label="تصفية المعدات"><button class="filter" data-filter="all" aria-pressed="true">الكل</button><button class="filter" data-filter="compressors" aria-pressed="false">كباسات</button><button class="filter" data-filter="coils" aria-pressed="false">كويلات</button><button class="filter" data-filter="units" aria-pressed="false">وحدات تبريد</button><button class="filter" data-filter="condensers" aria-pressed="false">كوندنسرات</button></div></div><span class="results" id="results" role="status"></span></div>
+    </div>
     <div class="products">
         <article class="product" data-type="condensers"><span class="product__flag">متاح للمعاينة</span><div class="media media--wide"><img src="/mas-cool-assets/condenser-blue.png" width="1672" height="941" loading="lazy" decoding="async" alt="كوندنسر هواء صناعي أزرق بمروحتين"></div><div class="product__body"><span class="product__kicker">مكثفات هوائية</span><h3>كوندنسر هواء</h3><p class="product__desc">مكثف هواء صناعي بمواصفات عالية وتبريد ثابت.</p><div class="product__actions"><button class="btn btn--dark btn--sm" type="button" data-inquire="كوندنسر هواء" data-value="condensers">استفسر عن السعر <span class="arrow" aria-hidden="true">←</span></button><button class="btn btn--ghost btn--sm" type="button">التفاصيل<span class="visually-hidden"> — كوندنسر هواء</span></button><button class="btn btn--ghost btn--sm" type="button">المواصفات<span class="visually-hidden"> — كوندنسر هواء</span></button></div></div></article>
         <article class="product" data-type="coils"><span class="product__flag">متاح للمعاينة</span><div class="media media--wide"><img src="/mas-cool-assets/coil-white.png" width="1672" height="941" loading="lazy" decoding="async" alt="كويل تبريد أبيض بمروحتين"></div><div class="product__body"><span class="product__kicker">تبريد وتجميد</span><h3>كويل تبريد</h3><p class="product__desc">كويل هواء للتبريد والتجميد بمقاسات وقدرات متعددة.</p><div class="product__actions"><button class="btn btn--dark btn--sm" type="button" data-inquire="كويل تبريد" data-value="coils">استفسر عن السعر <span class="arrow" aria-hidden="true">←</span></button><button class="btn btn--ghost btn--sm" type="button">التفاصيل<span class="visually-hidden"> — كويل تبريد</span></button><button class="btn btn--ghost btn--sm" type="button">المواصفات<span class="visually-hidden"> — كويل تبريد</span></button></div></div></article>
@@ -596,12 +653,12 @@
         <article class="product" data-type="coils"><span class="product__flag">متاح للمعاينة</span><div class="media media--xwide"><img src="/mas-cool-assets/coil-four-fan.png" width="2159" height="728" loading="lazy" decoding="async" alt="كويل تجميد صناعي بأربع مراوح"></div><div class="product__body"><span class="product__kicker">كويلات متعددة المراوح</span><h3>كويل تجميد</h3><p class="product__desc">كويل تجميد صناعي بأربع مراوح وقدرة تشغيل عالية.</p><div class="product__actions"><button class="btn btn--dark btn--sm" type="button" data-inquire="كويل تجميد" data-value="coils">استفسر عن السعر <span class="arrow" aria-hidden="true">←</span></button><button class="btn btn--ghost btn--sm" type="button">التفاصيل<span class="visually-hidden"> — كويل تجميد</span></button><button class="btn btn--ghost btn--sm" type="button">المواصفات<span class="visually-hidden"> — كويل تجميد</span></button></div></div></article>
         <article class="product" data-type="compressors"><span class="product__flag">متاح للمعاينة</span><div class="media media--sq"><img src="/mas-cool-assets/compressor-blue.png" width="1672" height="941" loading="lazy" decoding="async" alt="كباس تبريد صناعي أزرق"></div><div class="product__body"><span class="product__kicker">كباسات صناعية</span><h3>كباس تبريد</h3><p class="product__desc">كباس متعدد الاستخدامات، راجع الموديل والتوافر.</p><div class="product__actions"><button class="btn btn--dark btn--sm" type="button" data-inquire="كباس تبريد" data-value="compressors">استفسر عن السعر <span class="arrow" aria-hidden="true">←</span></button><button class="btn btn--ghost btn--sm" type="button">التفاصيل<span class="visually-hidden"> — كباس تبريد</span></button><button class="btn btn--ghost btn--sm" type="button">المواصفات<span class="visually-hidden"> — كباس تبريد</span></button></div></div></article>
     </div>
-    <div class="products-more"><a class="btn btn--outline" href="#contact">استعرض جميع المعدات ⊞</a></div>
+    <div class="products-more"><a class="btn btn--outline" href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" data-whatsapp-message="مرحبًا mas Cool، أريد معرفة المعدات المتاحة حاليًا.">استعرض جميع المعدات ⊞</a></div>
 </div></section>
 
 <section class="visit" aria-labelledby="visit-title">
     <div class="visit__media" role="img" aria-label="مراوح تبريد صناعية"></div>
-    <div class="container visit__inner"><div class="visit__copy"><h2 id="visit-title">شوف المعدة. جرّبها. <span>وقرر بثقة.</span></h2><p>تواصل معنا لتنسيق زيارتك ومعاينة المعدات.</p><a class="btn btn--lime" href="#contact">احجز زيارتك الآن <span class="arrow" aria-hidden="true">←</span></a><span class="visit__note"><i aria-hidden="true"></i> معاينة واختبار بالمخزن مع استشارة فنية</span></div></div>
+    <div class="container visit__inner"><div class="visit__copy"><h2 id="visit-title">شوف المعدة. جرّبها. <span>وقرر بثقة.</span></h2><p>تواصل معنا لتنسيق زيارتك ومعاينة المعدات.</p><a class="btn btn--lime" href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" data-whatsapp-message="مرحبًا mas Cool، أريد حجز موعد للزيارة ومعاينة المعدات.">احجز زيارتك الآن <span class="arrow" aria-hidden="true">←</span></a><span class="visit__note"><i aria-hidden="true"></i> معاينة واختبار بالمخزن مع استشارة فنية</span></div></div>
 </section>
 
 <section class="section advice" id="about" aria-labelledby="advice-title"><div class="container advice__grid">
@@ -633,13 +690,18 @@
     <div class="field"><label for="phone">رقم الهاتف</label><input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="رقم الهاتف" required maxlength="25"></div>
     <div class="field"><label for="type">نوع المعدة</label><select id="type" name="type" required><option value="">اختر نوع المعدة</option><option value="compressors">كباسات</option><option value="coils">كويلات</option><option value="units">وحدات تبريد</option><option value="condensers">كوندنسرات</option><option value="other">أحتاج مساعدة في الاختيار</option></select></div>
     <div class="field"><label for="message">تفاصيل الطلب</label><textarea id="message" name="message" placeholder="اكتب تفاصيل احتياجك هنا..." required maxlength="1500"></textarea></div>
-    </div><button class="btn btn--lime" type="submit">إرسال الاستفسار <span class="arrow" aria-hidden="true">◁</span></button><p class="form__note">سيتم تجهيز رسالة قابلة للنسخ، ولا تُرسل بياناتك تلقائيًا.</p></form>
+    </div><button class="btn btn--lime" type="submit">إرسال عبر واتساب <span class="arrow" aria-hidden="true">◁</span></button><p class="form__note">سيُفتح واتساب برسالة جاهزة، ولن تُرسل إلا بعد تأكيدك داخل المحادثة.</p></form>
 </div></section>
 </main>
 
-<footer class="footer"><div class="container"><div class="footer__grid"><div class="footer__brand"><a class="brand" href="#top"><svg class="brand__mark" aria-hidden="true"><use href="#snow"/></svg><div><div class="brand__word">mas Cool</div><div class="brand__tag">معدات التبريد الصناعي</div></div></a></div><div class="footer__links"><h3 class="footer__title">روابط سريعة</h3><a href="#top">الرئيسية</a><a href="#equipment">المعدات</a><a href="#about">لماذا mas Cool</a><a href="#contact">تواصل معنا</a></div><div class="footer__links"><h3 class="footer__title">المعدات</h3><a href="#equipment">كباسات</a><a href="#equipment">كويلات تبريد</a><a href="#equipment">وحدات تكثيف</a><a href="#equipment">كوندنسرات</a></div><div class="footer__links footer__start"><h3 class="footer__title">ابدأ معنا</h3><div class="footer__links-row"><a href="#contact">اطلب عرض سعر ←</a><a href="#contact">نسّق موعد المعاينة</a></div></div></div><div class="footer__bottom"><span>© <span id="year"></span> mas Cool — جميع الحقوق محفوظة.</span><a href="#top">العودة للأعلى ↑</a></div></div></footer>
+<footer class="footer"><div class="container"><div class="footer__grid"><div class="footer__brand"><a class="brand" href="#top"><svg class="brand__mark" aria-hidden="true"><use href="#snow"/></svg><div><div class="brand__word">mas Cool</div><div class="brand__tag">معدات التبريد الصناعي</div></div></a></div><div class="footer__links"><h3 class="footer__title">روابط سريعة</h3><a href="#top">الرئيسية</a><a href="#equipment">المعدات</a><a href="#about">لماذا mas Cool</a><a href="#contact">تواصل معنا</a></div><div class="footer__links"><h3 class="footer__title">المعدات</h3><a href="#equipment">كباسات</a><a href="#equipment">كويلات تبريد</a><a href="#equipment">وحدات تكثيف</a><a href="#equipment">كوندنسرات</a></div><div class="footer__links footer__start"><h3 class="footer__title">ابدأ معنا</h3><div class="footer__links-row"><a href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" data-whatsapp-message="مرحبًا mas Cool، أرغب في طلب عرض سعر.">اطلب عرض سعر ←</a><a href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" data-whatsapp-message="مرحبًا mas Cool، أريد تنسيق موعد للمعاينة.">نسّق موعد المعاينة</a></div></div></div><div class="footer__bottom"><span>© <span id="year"></span> mas Cool — جميع الحقوق محفوظة.</span><a href="#top">العودة للأعلى ↑</a></div></div></footer>
 
-<dialog class="dialog" id="request-dialog"><h2>طلبك جاهز</h2><p>انسخ الرسالة وأرسلها عبر وسيلة التواصل المناسبة.</p><textarea id="request-text" readonly aria-label="نص الطلب"></textarea><div class="dialog__actions"><button class="btn btn--lime" id="copy" type="button">نسخ الرسالة</button><button class="btn btn--outline" id="close-dialog" type="button">إغلاق</button></div><div class="status" id="status" role="status"></div></dialog>
+@if($whatsappNumber !== '')
+<a class="whatsapp-float" href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" data-whatsapp-message="مرحبًا mas Cool، أريد الاستفسار عن معدات التبريد." aria-label="تواصل معنا عبر واتساب">
+    <span class="whatsapp-float__label">تواصل معنا عبر واتساب</span>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.297.3-.495.099-.198.05-.372-.025-.521-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.009-.371-.011-.57-.011-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479s1.065 2.875 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.262.489 1.694.626.712.227 1.36.195 1.871.118.57-.085 1.758-.719 2.006-1.413.248-.694.248-1.29.173-1.414-.074-.123-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.99c-.002 5.45-4.437 9.884-9.889 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+</a>
+@endif
 
 <script>
 'use strict';
@@ -721,12 +783,49 @@ if(active&&filtersEl.scrollWidth>filtersEl.clientWidth)active.scrollIntoView({bl
 updateFilterCue();}
 filters.forEach(btn=>btn.addEventListener('click',()=>applyFilter(btn.dataset.filter)));
 document.querySelectorAll('[data-category]').forEach(btn=>btn.addEventListener('click',()=>{applyFilter(btn.dataset.category);document.querySelector('#equipment').scrollIntoView({block:'start'});}));
-document.querySelectorAll('[data-inquire]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelector('#type').value=btn.dataset.value;document.querySelector('#message').value=`أرغب في معرفة السعر والتوافر والمواصفات الخاصة بـ ${btn.dataset.inquire}.`;document.querySelector('#contact').scrollIntoView({block:'start'});}));
-const dialog=document.querySelector('#request-dialog');
-const requestText=document.querySelector('#request-text');
-document.querySelector('#inquiry').addEventListener('submit',e=>{e.preventDefault();const form=e.currentTarget;if(!form.checkValidity()){form.reportValidity();return;}const data=new FormData(form);const select=document.querySelector('#type');requestText.value=[`مرحبًا mas Cool، أرغب في طلب عرض سعر.`,`الاسم: ${data.get('name')}`,`الهاتف: ${data.get('phone')}`,`نوع المعدة: ${select.options[select.selectedIndex].text}`,`التفاصيل: ${data.get('message')}`].join('\n');document.querySelector('#status').textContent='';dialog.showModal();});
-document.querySelector('#copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(requestText.value);document.querySelector('#status').textContent='تم نسخ الرسالة.';}catch{requestText.select();document.querySelector('#status').textContent='تم تحديد الرسالة؛ اضغط Ctrl+C لنسخها.';}});
-document.querySelector('#close-dialog').addEventListener('click',()=>dialog.close());
+const whatsappNumber=@json($whatsappNumber);
+function openWhatsApp(message){
+    if(!whatsappNumber){
+        alert('رقم واتساب غير مُعدّ حاليًا. يرجى إضافته من لوحة التحكم.');
+        return;
+    }
+    const url=`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+    const whatsappWindow=window.open(url,'_blank');
+    if(whatsappWindow)whatsappWindow.opener=null;
+    else window.location.href=url;
+}
+document.addEventListener('click',e=>{
+    const trigger=e.target.closest('[data-whatsapp-message],.product__actions button');
+    if(!trigger)return;
+    e.preventDefault();
+    let message=trigger.dataset.whatsappMessage;
+    const product=trigger.closest('.product');
+    if(product){
+        const productName=product.querySelector('h3')?.textContent.trim()||'المعدة';
+        const action=trigger.matches('.btn--dark')?'price':trigger.textContent.trim().startsWith('التفاصيل')?'details':'specs';
+        const messages={
+            price:`مرحبًا mas Cool، أريد الاستفسار عن سعر وتوافر ${productName}.`,
+            details:`مرحبًا mas Cool، أريد معرفة تفاصيل ${productName}.`,
+            specs:`مرحبًا mas Cool، أريد معرفة مواصفات ${productName}.`
+        };
+        message=messages[action];
+    }
+    openWhatsApp(message||'مرحبًا mas Cool، أريد الاستفسار عن معدات التبريد.');
+});
+document.querySelector('#inquiry').addEventListener('submit',e=>{
+    e.preventDefault();
+    const form=e.currentTarget;
+    if(!form.checkValidity()){form.reportValidity();return;}
+    const data=new FormData(form);
+    const select=document.querySelector('#type');
+    openWhatsApp([
+        'مرحبًا mas Cool، أرغب في الاستفسار عن معدة.',
+        `الاسم: ${data.get('name')}`,
+        `الهاتف: ${data.get('phone')}`,
+        `نوع المعدة: ${select.options[select.selectedIndex].text}`,
+        `التفاصيل: ${data.get('message')}`
+    ].join('\n'));
+});
 document.querySelector('#year').textContent=new Date().getFullYear();
 const header=document.querySelector('.header');
 const progressBar=document.querySelector('.scroll-progress span');

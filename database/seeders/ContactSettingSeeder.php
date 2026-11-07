@@ -12,6 +12,7 @@ class ContactSettingSeeder extends Seeder
         ContactSetting::create([
             'email' => 'info@sensors.test',
             'phone' => '+20 123 456 7890',
+            'whatsapp_number' => '+20 123 456 7890',
             'address' => 'القاهرة، مصر',
             'facebook' => '#',
             'twitter' => '#',

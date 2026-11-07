@@ -18,7 +18,7 @@ use App\Http\Controllers\Dashboard\Blog\BlogPostController;
 use App\Http\Controllers\Dashboard\Blog\BlogSectionController;
 use App\Http\Controllers\Dashboard\SeoSettingController;
 use App\Http\Controllers\Dashboard\CounterController;
-use App\Http\Controllers\Dashboard\ContactSettingController;
+use App\Http\Controllers\Dashboard\Setting\ContactSettingController;
 use App\Http\Controllers\Dashboard\AboutSectionController;
 use App\Http\Controllers\Dashboard\CtaSectionController;
 use App\Http\Controllers\Dashboard\ClientController;
@@ -27,7 +27,7 @@ use App\Http\Controllers\Landing\RobotsTxtController;
 
 //  ========================================== Default Redirect ==========================================
 
-Route::view('/', 'mas-cool')->name('landing');
+Route::get('/', [LandingController::class, 'masCool'])->name('landing');
 Route::get('/mas-cool-assets/{filename}', function (string $filename) {
     abort_unless(preg_match('/^[a-z0-9-]+\.png$/', $filename) === 1, 404);
 

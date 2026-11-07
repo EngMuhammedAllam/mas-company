@@ -49,13 +49,21 @@
 
                                 <h5 class="mt-4 mb-3">معلومات الاتصال</h5>
 
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-4 mb-3">
                                     <label for="email" class="form-label">البريد الإلكتروني</label>
                                     <input type="email" class="form-control" id="email" name="email" value="{{ $setting->email }}">
                                 </div>
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-4 mb-3">
                                     <label for="phone" class="form-label">رقم الهاتف</label>
                                     <input type="text" class="form-control" id="phone" name="phone" value="{{ $setting->phone }}">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="whatsapp_number" class="form-label">رقم واتساب الاستفسارات</label>
+                                    <input type="text" class="form-control @error('whatsapp_number') is-invalid @enderror" id="whatsapp_number" name="whatsapp_number" value="{{ old('whatsapp_number', $setting->whatsapp_number) }}" placeholder="+201001234567" dir="ltr">
+                                    <div class="form-text">اكتب الرقم بصيغة دولية مع كود الدولة، بدون رابط واتساب.</div>
+                                    @error('whatsapp_number')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                                 <div class="col-md-12 mb-3">
                                     <label for="address" class="form-label">العنوان</label>

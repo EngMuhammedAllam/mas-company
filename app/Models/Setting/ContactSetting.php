@@ -11,6 +11,7 @@ class ContactSetting extends Model
         'description',
         'email',
         'phone',
+        'whatsapp_number',
         'address',
         'map_url',
         'facebook',

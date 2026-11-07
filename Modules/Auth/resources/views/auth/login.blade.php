@@ -1,130 +1,58 @@
-@extends('auth::layouts.master', ['page' => 'login'])
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#062b39">
+    <meta name="robots" content="noindex,nofollow">
+    <title>تسجيل الدخول | mas Cool</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preload" as="image" href="{{ route('mas-cool.asset', ['filename' => 'hero-compressor.png']) }}">
+    <style>
+        :root{--navy:#062b39;--navy-deep:#031d27;--navy-mid:#0a3d4e;--ink:#082d3b;--muted:#5c737e;--muted-soft:#8da0a8;--lime:#d4f83f;--lime-hover:#c6ef28;--ice:#f1f6f8;--paper:#f8fbfb;--line:#dce7eb;--danger:#b42318;--danger-bg:#fff1f0;--radius-sm:10px;--radius-md:16px;--radius-lg:24px;--shadow:0 28px 80px rgba(3,29,39,.13)}
+        *{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{min-height:100svh;margin:0;background:var(--paper);color:var(--ink);font-family:"Cairo",Tahoma,Arial,sans-serif;line-height:1.7}button,input{font:inherit}button,a{color:inherit}a{text-decoration:none}button{cursor:pointer}h1,h2,p{margin:0}svg,img{display:block}:focus-visible{outline:3px solid rgba(16,129,158,.38);outline-offset:3px}
+        .container{width:min(1220px,calc(100% - 40px));margin-inline:auto}.site-header{height:80px;display:flex;align-items:center;border-bottom:1px solid var(--line);background:rgba(248,251,251,.92);backdrop-filter:blur(16px)}.site-header__inner{display:flex;align-items:center;justify-content:space-between;gap:24px}.brand{display:flex;align-items:center;gap:10px}.brand__mark{width:42px;height:42px;padding:8px;border-radius:11px;background:var(--navy);color:var(--lime);flex:none}.brand__word{display:block;direction:ltr;font-family:Arial,sans-serif;font-size:24px;line-height:1;font-weight:800;letter-spacing:-1.1px}.brand__tag{display:block;margin-top:3px;color:var(--muted-soft);font-size:10px;line-height:1.4}.back-home{min-height:42px;padding:7px 15px;display:inline-flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:var(--radius-sm);background:#fff;color:var(--muted);font-size:12.5px;font-weight:700;transition:.2s ease}.back-home:hover{border-color:#b7cbd2;color:var(--navy);transform:translateY(-1px)}.back-home svg{width:17px;height:17px}
+        .auth-main{position:relative;height:calc(100svh - 80px);min-height:600px;padding:24px 0;display:grid;grid-template-columns:minmax(0,1fr);place-items:center;overflow:hidden}.auth-main:before,.auth-main:after{content:"";position:absolute;border-radius:50%;pointer-events:none}.auth-main:before{width:420px;height:420px;top:-250px;right:-170px;border:1px solid rgba(6,43,57,.06);box-shadow:0 0 0 40px rgba(6,43,57,.018),0 0 0 80px rgba(6,43,57,.014)}.auth-main:after{width:260px;height:260px;bottom:-185px;left:-85px;background:radial-gradient(circle,var(--lime) 0 2px,transparent 3px);background-size:18px 18px;opacity:.22}.auth-card{position:relative;z-index:1;width:min(1080px,calc(100% - 40px));height:min(560px,calc(100% - 48px));min-width:0;min-height:520px;max-height:560px;justify-self:center;display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);grid-template-areas:"visual form";direction:ltr;border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;background:#fff;box-shadow:var(--shadow)}
+        .auth-form-panel{grid-area:form;direction:rtl;min-width:0;padding:38px 56px;display:flex;flex-direction:column;justify-content:center;background:#fff}.eyebrow{display:flex;align-items:center;gap:9px;color:#728a18;font-size:11px;font-weight:800;letter-spacing:.07em}.eyebrow:before{content:"";width:18px;height:2px;background:currentColor}.auth-form-panel h1{margin-top:7px;font-size:clamp(31px,3vw,40px);line-height:1.25;letter-spacing:-1.2px}.auth-intro{max-width:46ch;margin-top:6px;color:var(--muted);font-size:13.5px}.secure-note{margin-top:15px;padding:9px 12px;display:flex;align-items:center;gap:9px;border-radius:var(--radius-sm);background:var(--ice);color:var(--muted);font-size:11.5px}.secure-note svg{width:17px;height:17px;flex:none;color:var(--navy)}
+        .alert{margin-top:14px;padding:9px 12px;border:1px solid #ffd2ce;border-radius:var(--radius-sm);background:var(--danger-bg);color:var(--danger);font-size:12px;font-weight:600}.alert--success{border-color:#cde8d2;background:#f0fff3;color:#22743b}.login-form,.field,.input-wrap{min-width:0;max-width:100%}.login-form{margin-top:18px}.field+.field{margin-top:12px}.field__top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:5px}.field label{font-size:12.5px;font-weight:800;color:var(--ink)}.field__error{color:var(--danger);font-size:10.5px;font-weight:700}.input-wrap{position:relative}.input-wrap>svg{position:absolute;z-index:1;right:15px;top:50%;width:19px;height:19px;transform:translateY(-50%);color:#78909a;pointer-events:none}.field input{min-width:0;width:100%;height:48px;padding:9px 46px;border:1px solid #cddde3;border-radius:var(--radius-sm);background:#fff;color:var(--ink);font-size:14px;outline:none;transition:border-color .2s ease,box-shadow .2s ease,background .2s ease}.field input::placeholder{color:#a1b1b8}.field input:hover{border-color:#aec4cc}.field input:focus{border-color:#10819e;box-shadow:0 0 0 4px rgba(16,129,158,.1)}.field input[aria-invalid="true"]{border-color:#e07168;background:#fffafa}.password-toggle{position:absolute;left:7px;top:50%;width:36px;height:36px;transform:translateY(-50%);display:grid;place-items:center;border:0;border-radius:8px;background:transparent;color:#78909a}.password-toggle:hover{background:var(--ice);color:var(--navy)}.password-toggle svg{width:18px;height:18px}.password-toggle .eye-off{display:none}.password-toggle.is-visible .eye{display:none}.password-toggle.is-visible .eye-off{display:block}.submit-btn{width:100%;min-height:48px;margin-top:17px;padding:9px 20px;display:flex;align-items:center;justify-content:center;gap:11px;border:0;border-radius:var(--radius-sm);background:var(--lime);color:var(--navy);font-weight:800;box-shadow:0 10px 24px rgba(124,148,26,.16);transition:.2s ease}.submit-btn:hover{background:var(--lime-hover);transform:translateY(-1px);box-shadow:0 14px 28px rgba(124,148,26,.2)}.submit-btn svg{width:18px;height:18px;transition:transform .2s ease}.submit-btn:hover svg{transform:translateX(-3px)}.form-footer{margin-top:11px;text-align:center;color:var(--muted-soft);font-size:10px}
+        .auth-visual{position:relative;grid-area:visual;direction:rtl;min-width:0;overflow:hidden;padding:32px 38px;display:flex;flex-direction:column;justify-content:space-between;background:var(--navy-deep);color:#fff;isolation:isolate}.auth-visual:before{content:"";position:absolute;z-index:-2;inset:0;background:radial-gradient(circle at 22% 12%,rgba(212,248,63,.16),transparent 30%),linear-gradient(145deg,var(--navy-mid),var(--navy-deep) 62%)}.auth-visual:after{content:"";position:absolute;z-index:-1;inset:0;opacity:.11;background-image:linear-gradient(rgba(255,255,255,.13) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.13) 1px,transparent 1px);background-size:32px 32px;mask-image:linear-gradient(to bottom,black,transparent 75%)}.visual-top{position:relative;z-index:2}.visual-label{display:inline-flex;align-items:center;gap:8px;padding:5px 9px;border:1px solid rgba(212,248,63,.3);border-radius:999px;background:rgba(212,248,63,.08);color:var(--lime);font-size:10px;font-weight:800}.visual-label i{width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 0 4px rgba(212,248,63,.1)}.auth-visual h2{max-width:11ch;margin-top:10px;font-size:clamp(29px,3vw,39px);line-height:1.2;letter-spacing:-1px}.auth-visual h2 span{display:block;color:var(--lime)}.auth-visual p{max-width:40ch;margin-top:6px;color:#b9ced6;font-size:12px}.machine{position:absolute;z-index:0;left:-5%;right:2%;bottom:70px;width:106%;height:225px;object-fit:contain;filter:drop-shadow(0 30px 32px rgba(0,0,0,.32));transform:scale(1.04)}.visual-benefits{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr;gap:8px}.benefit{min-height:52px;padding:8px 10px;display:flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.11);border-radius:var(--radius-sm);background:rgba(3,29,39,.7);backdrop-filter:blur(8px)}.benefit__icon{width:27px;height:27px;display:grid;place-items:center;border-radius:8px;background:var(--lime);color:var(--navy);flex:none}.benefit__icon svg{width:14px;height:14px}.benefit strong{display:block;font-size:10.5px;line-height:1.5}.benefit>span:last-child>span{display:block;margin-top:1px;color:#91aab4;font-size:8.5px;line-height:1.5}
+        @media(max-width:900px){.auth-main{height:auto;min-height:calc(100svh - 80px);padding:22px 0}.auth-card{height:auto;min-height:0;max-height:none;max-width:570px;grid-template-columns:1fr;grid-template-areas:"visual" "form"}.auth-visual{min-height:205px;padding:24px 28px}.auth-visual h2{max-width:13ch;margin-top:8px;font-size:27px}.auth-visual p{font-size:11.5px}.machine{width:52%;height:165px;right:auto;left:-2%;bottom:12px}.visual-benefits{width:52%;grid-template-columns:1fr;margin-right:auto}.benefit:nth-child(2){display:none}.auth-form-panel{padding:30px 38px}}
+        @media(max-width:560px){.container{width:calc(100% - 28px)}.site-header{height:64px}.brand__mark{width:35px;height:35px;padding:6px}.brand__word{font-size:20px}.brand__tag{font-size:8.5px}.back-home{width:38px;height:38px;min-height:38px;padding:0;justify-content:center}.back-home span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}.auth-main{min-height:calc(100svh - 64px);padding:12px 0 16px;place-items:start center}.auth-card{width:calc(100% - 24px);max-width:570px;border-radius:18px;box-shadow:0 14px 40px rgba(3,29,39,.1)}.auth-visual{min-height:130px;padding:16px 18px}.visual-label{padding:4px 8px;font-size:8.5px}.auth-visual h2{margin-top:6px;font-size:22px;max-width:12ch;line-height:1.15}.auth-visual p,.visual-benefits{display:none}.machine{width:47%;height:108px;left:-2%;bottom:0}.auth-form-panel{padding:18px 18px 17px}.auth-form-panel h1{margin-top:5px;font-size:27px}.eyebrow{font-size:9.5px}.auth-intro{margin-top:4px;font-size:11.5px;line-height:1.65}.secure-note{display:none}.login-form{margin-top:13px}.field+.field{margin-top:10px}.field__top{margin-bottom:4px}.field label{font-size:11.5px}.field input{height:46px}.submit-btn{min-height:46px;margin-top:14px}.form-footer{margin-top:8px;font-size:8.5px}}
+        @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+    </style>
+</head>
+<body>
+<svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"><symbol id="snow" viewBox="0 0 64 64"><path d="M32 6v52M9.5 19l45 26M9.5 45l45-26M32 6l-6 7M32 6l6 7M32 58l-6-7M32 58l6-7M9.5 19l9 1M9.5 19l3 8M54.5 45l-9-1M54.5 45l-3-8M9.5 45l9-1M9.5 45l3-8M54.5 19l-9 1M54.5 19l-3 8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol></svg>
 
-@section('title')
-تسجيل الدخول
-@endsection
+<header class="site-header"><div class="container site-header__inner">
+    <a class="brand" href="{{ route('landing') }}" aria-label="mas Cool — الرئيسية"><svg class="brand__mark" aria-hidden="true"><use href="#snow"/></svg><span><span class="brand__word">mas Cool</span><span class="brand__tag">معدات التبريد الصناعي</span></span></a>
+    <a class="back-home" href="{{ route('landing') }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m14 7-5 5 5 5"/><path d="M9 12h10"/></svg><span>العودة للموقع</span></a>
+</div></header>
 
-@section('content')
-
-<main>
-
-
-
-  <!-- ===== نموذج تسجيل الدخول ===== -->
-  <section class="i pg fh rm ki xn vq gj qp gr hj rp hr">
-
-    <!-- الأشكال الخلفية -->
-    <img src="{{ secure_asset('land/images/shape-06.svg')}}" alt="شكل" class="h j k" />
-    <img src="{{ secure_asset('land/images/shape-03.svg')}}" alt="شكل" class="h l m" />
-    <img src="{{ secure_asset('land/images/shape-17.svg')}}" alt="شكل" class="h n o" />
-    <img src="{{ asset('land/images/shape-18.svg')}}" alt="شكل" class="h p q" />
-
-    <div class="animate_top bb af i va sg hh sm vk xm yi _n jp hi ao kp">
-      <!-- الإطار الخلفي -->
-      <span class="rc h r s zd/2 od zg gh"></span>
-      <span class="rc h r q zd/2 od xg mh"></span>
-
-      <div class="rj text-center">
-        <h2 class="ek ck kk wm xb">تسجيل الدخول إلى حسابك</h2>
-        <p>من فضلك قم بإدخال بياناتك لتسجيل الدخول</p>
-
-        <h3 class="hk yj kk wm ob mc">تسجيل الدخول باستخدام وسائل التواصل الاجتماعي</h3>
-        <ul class="tc wf xf mg ec">
-          <li>
-            <a class="tc wf xf be dd di sg _g ch qm ml il bm rl/40 ym/40" href="#!">
-              <!-- Google Icon -->
-              <svg width="22" height="22" viewBox="0 0 22 22" fill="none"
-                xmlns="http://www.w3.org/2000/svg">
-                <g clip-path="url(#clip0_50_914)">
-                  <path
-                    d="M22.0001 11.2439C22.0134 10.4877 21.9338 9.73268 21.7629 8.99512H11.2246V13.0773H17.4105C17.2933 13.793 17.0296 14.4782 16.6352 15.0915C16.2409 15.7048 15.724 16.2336 15.1158 16.6461L15.0942 16.7828L18.4264 19.3125L18.6571 19.3351C20.7772 17.4162 21.9997 14.5928 21.9997 11.2439"
-                    fill="#4285F4" />
-                  <path
-                    d="M11.2245 22C14.255 22 16.7992 21.0222 18.6577 19.3355L15.1156 16.6465C14.1679 17.2945 12.8958 17.7467 11.2245 17.7467C9.80508 17.7386 8.42433 17.2926 7.27814 16.4721C6.13195 15.6516 5.27851 14.4982 4.83892 13.1755L4.70737 13.1865L1.24255 15.8143L1.19727 15.9377C2.13043 17.7603 3.56252 19.2925 5.33341 20.3631C7.10429 21.4338 9.14416 22.0005 11.2249 22"
-                    fill="#34A853" />
-                  <path
-                    d="M4.83889 13.1756C4.59338 12.4754 4.46669 11.7405 4.46388 11.0001C4.4684 10.2609 4.59041 9.52697 4.82552 8.82462L4.81927 8.6788L1.31196 6.00879L1.19724 6.06226C0.410039 7.59392 0 9.28503 0 11C0 12.715 0.410039 14.4061 1.19724 15.9377L4.83889 13.1756"
-                    fill="#FBBC05" />
-                  <path
-                    d="M11.2249 4.25337C12.8333 4.22889 14.3888 4.8159 15.565 5.89121L18.7329 2.86003C16.7011 0.992106 14.0106 -0.0328008 11.2249 3.27798e-05C9.14418 -0.000452376 7.10433 0.566279 5.33345 1.63686C3.56256 2.70743 2.13046 4.23965 1.19727 6.06218L4.82684 8.82455C5.27077 7.50213 6.12703 6.34962 7.27491 5.5295C8.4228 4.70938 9.80439 4.26302 11.2249 4.25337"
-                    fill="#EB4335" />
-                </g>
-                <defs>
-                  <clipPath id="clip0_50_914">
-                    <rect width="22" height="22" fill="white" />
-                  </clipPath>
-                </defs>
-              </svg>
-            </a>
-          </li>
-
-          <!-- Facebook -->
-          <li>
-            <a class="tc wf xf be dd di sg _g ch qm ml il bm rl/40 ym/40" href="#!">
-              <svg width="12" height="22" viewBox="0 0 12 22" fill="none"
-                xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M7.7 12.65H10.45L11.55 8.25H7.7V6.05C7.7 4.917 7.7 3.85 9.9 3.85H11.55V0.154C11.1914 0.1067 9.8373 0 8.4073 0C5.4208 0 3.3 1.8227 3.3 5.17V8.25H0V12.65H3.3V22H7.7V12.65Z"
-                  fill="#1877F2" />
-              </svg>
-            </a>
-          </li>
-
-          <!-- GitHub -->
-          <li>
-            <a class="tc wf xf be dd di sg _g ch qm ml il bm rl/40 ym/40" href="#!">
-              <svg width="23" height="22" viewBox="0 0 23 22" fill="none"
-                xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M11.2731 0C9.7927 0 8.32679 0.291587 6.95907 0.858113C5.59136 1.42464 4.34862 2.25501 3.30182 3.30181C1.1877 5.41593 0 8.28329 0 11.2731C0 16.2558 3.23538 20.4832 7.7108 21.9825C8.27446 22.0727 8.45483 21.7233 8.45483 21.4189C8.45483 21.1596 8.45483 20.4494 8.45483 19.5137C5.33218 20.1901 4.66706 18.0031 4.66706 18.0031C4.1485 16.6955 3.41575 16.346 3.41575 16.346C2.3899 15.6471 3.49466 15.6696 3.49466 15.6696C4.62197 15.7485 5.21945 16.8307 5.21945 16.8307C6.20021 18.5442 7.85735 18.037 8.49992 17.7664C8.60138 17.0336 8.89448 16.5376 9.21013 16.2558C6.7075 15.974 4.08086 15.0045 4.08086 10.7094C4.08086 9.45813 4.50924 8.45482 5.24199 7.65443C5.12926 7.37261 4.7347 6.2002 5.35472 4.67834C5.35472 4.67834 6.30167 4.37396 8.45483 5.82819C9.3454 5.58018 10.3149 5.45618 11.2731 5.45618C12.2313 5.45618 13.2008 5.58018 14.0914 5.82819C16.2445 4.37396 17.1915 4.67834 17.1915 4.67834C17.8115 6.2002 17.4169 7.37261 17.3042 7.65443C18.037 8.45482 18.4653 9.45813 18.4653 10.7094C18.4653 15.0158 15.8274 15.9627 13.3135 16.2445C13.7194 16.594 14.0914 17.2817 14.0914 18.3301C14.0914 19.8407 14.0914 21.0581 14.0914 21.4189C14.0914 21.7233 14.2717 22.084 14.8467 21.9825C19.3221 20.4719 22.5462 16.2558 22.5462 11.2731C22.5462 9.79269 22.2546 8.32678 21.6881 6.95907C21.1216 5.59135 20.2912 4.34862 19.2444 3.30181C18.1976 2.25501 16.9549 1.42464 15.5871 0.858113C14.2194 0.291587 12.7535 0 11.2731 0Z"
-                  fill="#79808A" />
-              </svg>
-            </a>
-          </li>
-        </ul>
-
-        <span class="i rc sj hk xj">
-          <span class="rc h s z/2 nd oe rh tm"></span>
-          <span class="rc h q z/2 nd oe rh tm"></span>
-          التسجيل بالبريد الإلكتروني
-        </span>
-      </div>
-
-      <form class="sb" action="{{ route('dashboard.login') }}" method="post">
-        @csrf
-
-        <div class="wb">
-          <label class="rc kk wm vb" for="email">البريد الإلكتروني
-            @error('email')
-            <span class="invalid-feedback" role="alert" style="color: red !important;">
-              <strong>{{ $message }}</strong>
-            </span>
-            @enderror
-          </label>
-          <input type="email" name="email" id="email" placeholder="example@gmail.com"
-            class="vd hh rg zk _g ch hm dm fm pl/50 xi mi sm xm pm dn/40" />
-        </div>
-
-        <div class="wb">
-          <label class="rc kk wm vb" for="password">كلمة المرور
-            @error('password')
-            <span class="invalid-feedback" role="alert" style="color: red !important;">
-              <strong>{{ $message }}</strong>
-            </span>
-            @enderror
-          </label>
-          <input type="password" name="password" id="password" placeholder="**************"
-            class="vd hh rg zk _g ch hm dm fm pl/50 xi mi sm xm pm dn/40" />
-        </div>
-
-        <button class="vd rj ek rc rg gh lk ml il _l gi hi">
-          تسجيل الدخول
-        </button>
-
-      </form>
+<main class="auth-main"><section class="auth-card" aria-labelledby="login-title">
+    <div class="auth-form-panel">
+        <p class="eyebrow">بوابة الإدارة الآمنة</p><h1 id="login-title">مرحبًا بعودتك</h1><p class="auth-intro">سجّل الدخول للوصول إلى لوحة التحكم وإدارة محتوى موقع mas Cool.</p>
+        <div class="secure-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>هذه الصفحة مخصصة للمسؤولين المصرّح لهم فقط.</div>
+        @if(session('error'))<div class="alert" role="alert">{{ session('error') }}</div>@endif
+        @if(session('success'))<div class="alert alert--success" role="status">{{ session('success') }}</div>@endif
+        <form class="login-form" action="{{ route('dashboard.login') }}" method="post" novalidate>
+            @csrf
+            <div class="field"><div class="field__top"><label for="email">البريد الإلكتروني</label>@error('email')<span class="field__error" id="email-error">{{ $message }}</span>@enderror</div><div class="input-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg><input type="email" name="email" id="email" value="{{ old('email') }}" placeholder="admin@example.com" autocomplete="email" inputmode="email" required @error('email') aria-invalid="true" aria-describedby="email-error" @enderror></div></div>
+            <div class="field"><div class="field__top"><label for="password">كلمة المرور</label>@error('password')<span class="field__error" id="password-error">{{ $message }}</span>@enderror</div><div class="input-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><input type="password" name="password" id="password" placeholder="أدخل كلمة المرور" autocomplete="current-password" required @error('password') aria-invalid="true" aria-describedby="password-error" @enderror><button class="password-toggle" type="button" aria-label="إظهار كلمة المرور" aria-pressed="false"><svg class="eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg><svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m3 3 18 18"/><path d="M10.6 6.2A10.5 10.5 0 0 1 12 6c6.5 0 10 6 10 6a18 18 0 0 1-3 3.8M6.2 6.2C3.5 8 2 12 2 12s3.5 6 10 6c1.7 0 3.2-.4 4.4-1"/><path d="M9.9 9.9A3 3 0 0 0 14.1 14.1"/></svg></button></div></div>
+            <button class="submit-btn" type="submit">تسجيل الدخول<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+            <p class="form-footer">بيانات دخولك محمية ولا تتم مشاركتها مع أي طرف.</p>
+        </form>
     </div>
-  </section>
-  <!-- ===== نهاية نموذج تسجيل الدخول ===== -->
-</main>
-
-@endsection
+    <aside class="auth-visual" aria-label="mas Cool لمعدات التبريد الصناعي">
+        <div class="visual-top"><span class="visual-label"><i aria-hidden="true"></i> لوحة تحكم mas Cool</span><h2>إدارة أذكى.<span>تحكم أسرع.</span></h2><p>كل أدوات إدارة الموقع ومحتواه في مساحة واحدة مصممة لفريق العمل.</p></div>
+        <img class="machine" src="{{ route('mas-cool.asset', ['filename' => 'hero-compressor.png']) }}" width="1672" height="941" alt="كباس تبريد صناعي" fetchpriority="high">
+        <div class="visual-benefits"><div class="benefit"><span class="benefit__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg></span><span><strong>دخول آمن</strong><span>للمسؤولين فقط</span></span></div><div class="benefit"><span class="benefit__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-7M22 19V3"/></svg></span><span><strong>إدارة متكاملة</strong><span>المحتوى والإعدادات</span></span></div></div>
+    </aside>
+</section></main>
+<script>
+const passwordInput=document.querySelector('#password');const passwordToggle=document.querySelector('.password-toggle');passwordToggle.addEventListener('click',()=>{const visible=passwordInput.type==='text';passwordInput.type=visible?'password':'text';passwordToggle.classList.toggle('is-visible',!visible);passwordToggle.setAttribute('aria-pressed',String(!visible));passwordToggle.setAttribute('aria-label',visible?'إظهار كلمة المرور':'إخفاء كلمة المرور');passwordInput.focus({preventScroll:true});});
+</script>
+</body>
+</html>

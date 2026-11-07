@@ -51,7 +51,6 @@
                                 <div class="avatar border-0 bg-primary-transparent text-primary">
                                     <i class="ri-article-line fs-24"></i>
                                 </div>
-                                @endforeach
                             </div>
                         </div>
                     </div>
@@ -260,9 +259,7 @@
         var contactsOptions = {
             series: [{
                 name: 'الرسائل',
-                data: {
-                    !!json_encode(array_values($contact_counts)) !!
-                }
+                data: @json(array_values($contact_counts))
             }],
             chart: {
                 height: 320,
@@ -279,9 +276,7 @@
                 width: 2
             },
             xaxis: {
-                categories: {
-                    !!json_encode(array_values($months)) !!
-                },
+                categories: @json(array_values($months)),
             },
             colors: ['#3858f9'],
             fill: {
@@ -300,9 +295,7 @@
         var viewsOptions = {
             series: [{
                 name: 'المشاهدات',
-                data: {
-                    !!json_encode(array_values($view_counts)) !!
-                }
+                data: @json(array_values($view_counts))
             }],
             chart: {
                 height: 320,
@@ -312,9 +305,7 @@
                 }
             },
             xaxis: {
-                categories: {
-                    !!json_encode(array_values($months)) !!
-                },
+                categories: @json(array_values($months)),
             },
             colors: ['#27ae60']
         };
@@ -322,16 +313,12 @@
 
         // 3. Distribution Chart
         var distOptions = {
-            series: {
-                !!json_encode(array_values($distribution['data'])) !!
-            },
+            series: @json(array_values($distribution['data'])),
             chart: {
                 height: 320,
                 type: 'donut'
             },
-            labels: {
-                !!json_encode(array_values($distribution['labels'])) !!
-            },
+            labels: @json(array_values($distribution['labels'])),
             legend: {
                 position: 'bottom'
             },

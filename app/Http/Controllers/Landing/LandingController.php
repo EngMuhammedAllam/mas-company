@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Landing;
 use App\Http\Controllers\Controller;
 use App\Services\Landing\BlogService;
 use App\Services\Landing\LandingPageService;
+use App\Models\Setting\ContactSetting;
 use Illuminate\Http\Request;
 
 class LandingController extends Controller
@@ -24,6 +25,13 @@ class LandingController extends Controller
     public function index()
     {
         return view('landing.index', $this->landingService->getLandingData());
+    }
+
+    public function masCool()
+    {
+        return view('mas-cool', [
+            'contactSetting' => ContactSetting::query()->first(),
+        ]);
     }
 
     /**

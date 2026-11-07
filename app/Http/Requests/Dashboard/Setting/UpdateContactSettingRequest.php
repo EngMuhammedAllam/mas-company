@@ -26,6 +26,7 @@ class UpdateContactSettingRequest extends FormRequest
             'description' => 'nullable|string',
             'email' => 'nullable|email',
             'phone' => 'nullable|string',
+            'whatsapp_number' => ['nullable', 'string', 'max:30', 'regex:/^\+?[0-9\s()\-]{8,30}$/'],
             'address' => 'nullable|string',
             'map_url' => 'nullable|string',
             'facebook' => 'nullable|string',
