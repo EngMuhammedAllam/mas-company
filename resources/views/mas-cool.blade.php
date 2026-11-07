@@ -246,7 +246,7 @@
         .process__head{max-width:600px}
         .steps{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:46px}
         /* connector aligns with the centre of the number nodes */
-        .steps:before{content:"";position:absolute;top:-21px;right:16.6%;left:16.6%;height:1px;background:repeating-linear-gradient(90deg,var(--line) 0 6px,transparent 6px 12px)}
+        .steps:before{content:"";position:absolute;top:0;right:16.6%;left:16.6%;height:1px;background:repeating-linear-gradient(90deg,var(--line) 0 6px,transparent 6px 12px)}
         .step{position:relative;border:1px solid var(--line-soft);border-radius:var(--r-lg);background:#fff;padding:0 22px 22px;text-align:center;transition:border-color .2s ease,transform .2s ease,box-shadow .2s ease}
         .step:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:#b9ccd4}
         .step__number{width:42px;height:42px;border-radius:50%;background:#fff;border:1px solid var(--line);display:grid;place-items:center;margin:-21px auto 14px;font-weight:800;font-size:12px;color:var(--muted);position:relative;z-index:1;transition:background .2s ease,border-color .2s ease,color .2s ease}
@@ -341,10 +341,6 @@
             .header__inner{display:flex;justify-content:space-between}
             .header__cta{display:none}
             .menu-toggle{display:grid;place-items:center}
-            .nav{display:none;position:absolute;top:100%;right:0;left:0;justify-self:auto;flex-direction:column;align-items:stretch;gap:2px;padding:10px var(--gutter) 14px;background:#fff;border-bottom:1px solid var(--line);box-shadow:var(--shadow)}
-            .nav.open{display:flex}
-            .nav a{padding:12px 14px;text-align:right}
-            .nav a:after{right:14px;left:auto;width:16px}
             .hero__grid{grid-template-columns:1fr;padding-bottom:32px}
             .hero__copy{max-width:none}
             .hero__visual{grid-row:2;aspect-ratio:16/9;max-height:320px}
@@ -357,36 +353,184 @@
             /* text before image converts better on mobile */
             .advice__figure{grid-row:2}
             .advice__image{aspect-ratio:16/9}
-            .steps{grid-template-columns:1fr;gap:10px;margin-top:28px}
-            /* connector becomes a vertical timeline */
-            .steps:before{top:18px;bottom:18px;right:auto;left:auto;inset-inline-start:auto;inset-inline-end:50%;width:1px;height:auto;background:repeating-linear-gradient(180deg,var(--line) 0 6px,transparent 6px 12px)}
-            .step{padding-top:0}
             .footer__grid{grid-template-columns:1fr 1fr}
             .footer__brand{grid-column:1/-1}
         }
+
+        /* ============================================================
+           16. MOBILE — a layout of its own, not a stacked desktop
+           ============================================================ */
+        /* no grid or flex child may push the page sideways */
+        .hero__grid>*,.categories>*,.products>*,.steps>*,.footer__grid>*,
+        .advice__grid>*,.contact__grid>*,.faq__grid>*,.visit__inner>*,
+        .product__body>*,.category-card__body>*,.trust__item>*{min-width:0}
+        .product h3,.cat-title,.step h3,.faq summary,.section-title,.hero h1{overflow-wrap:break-word}
+
+        /* touch targets reach 44px where the pointer is a finger */
+        @media(pointer:coarse),(max-width:680px){
+            :root{--btn-h:50px;--btn-h-sm:44px}
+            .filter{min-height:44px}
+            .menu-toggle{width:46px;height:46px}
+            .round-arrow{width:40px;height:40px}
+            .faq summary{min-height:62px}
+        }
+
         @media(max-width:680px){
-            .hero__trust-grid{grid-template-columns:1fr}
-            .trust__item{padding:13px 0}
-            .trust__item+.trust__item{border-right:0;border-top:1px solid rgba(255,255,255,.1)}
-            .products{grid-template-columns:1fr}
-            .media{max-height:208px}
-        }
-        @media(max-width:560px){
+            :root{--gutter:20px;--sec-y:clamp(48px,11vw,60px);--sec-y-compact:clamp(36px,9vw,46px);--fs-h1:clamp(38px,11vw,46px);--fs-h2:clamp(29px,8vw,35px);--fs-h3:clamp(22px,6.2vw,26px);--fs-body:16px}
+
+            /* header: flat, stable, no curved white edge over the dark hero.
+               backdrop-filter is dropped here because it would make the header the
+               containing block for the position:fixed drawer nested inside it. */
+            .header{border-bottom:1px solid var(--line);backdrop-filter:none;background:#f8fbfb}
+            .header.is-stuck{box-shadow:0 1px 10px rgba(5,43,57,.07)}
+            .brand__mark{width:36px;height:36px}
+            .brand__word{font-size:21px}
+            .menu-toggle{border-color:#cbd9de}
+
+            /* ---- navigation drawer ---- */
+            .nav{position:fixed;inset:0 0 0 auto;z-index:90;display:flex;visibility:hidden;opacity:0;width:min(84vw,320px);justify-self:auto;flex-direction:column;align-items:stretch;justify-content:flex-start;overflow-y:auto;gap:2px;padding:18px var(--gutter) 22px;background:#fff;border:0;box-shadow:-18px 0 44px rgba(3,29,39,.22);transform:translateX(100%);transition:transform .26s ease,opacity .26s ease}
+            /* visibility flips instantly so the panel is focusable the moment it opens;
+               only the slide and fade are animated */
+            .nav.open{visibility:visible;opacity:1;transform:none}
+            .nav a{padding:14px 12px;text-align:right;font-size:15px;border-bottom:1px solid var(--line-soft)}
+            .nav a:after{display:none}
+            .nav a.active{background:var(--ice);border-radius:var(--r-sm);border-bottom-color:transparent;box-shadow:inset 3px 0 0 var(--lime)}
+            .nav__head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+            .nav__title{font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--muted)}
+            .nav__close{width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--line);border-radius:var(--r-sm);background:#fff;font-size:20px;color:var(--navy)}
+            .nav__cta{margin-top:16px;width:100%}
+            .nav-scrim{position:fixed;inset:0;z-index:80;background:rgba(3,29,39,.5);opacity:0;visibility:hidden;transition:opacity .26s ease}
+            .nav-scrim.open{opacity:1;visibility:visible}
+            body.nav-locked{overflow:hidden}
+            /* the drawer lives inside the header's stacking context, so the header must
+               outrank the scrim while it is open or the scrim would paint over the panel */
+            body.nav-locked .header{z-index:95}
+
+            /* ---- hero: tighter, image closer to the copy ---- */
+            .hero{border-radius:0}
+            .hero__grid{padding:22px 0 18px;gap:16px}
+            .hero h1{margin:10px 0 10px;letter-spacing:-1.2px;line-height:1.16}
+            .hero__lead{font-size:15.5px;line-height:1.7;margin-bottom:18px;max-width:38ch}
+            .hero__actions{gap:8px}
             .hero__actions .btn{width:100%}
-            .hero__visual{max-height:240px}
-            .categories{grid-template-columns:1fr}
-            .equipment__toolbar{flex-direction:column;align-items:stretch;gap:8px}
-            .filters{margin-inline:calc(var(--gutter) * -1);padding-inline:var(--gutter)}
-            .results{text-align:center}
-            .form__grid{grid-template-columns:1fr}
-            .footer__grid{grid-template-columns:1fr}
-            .footer__brand{grid-column:auto}
+            .hero__actions .btn--outline{min-height:46px;font-weight:700;border-color:rgba(255,255,255,.2)}
+            /* three proofs as a compact two-row grid instead of a loose wrap */
+            .hero__proof{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin-top:12px;padding-top:11px}
+            .hero__proof-item{font-size:12px}
+            .hero__visual{aspect-ratio:auto;height:clamp(214px,57vw,262px);max-height:none;border-radius:var(--r-md);mask-image:none;background-size:contain;background-position:center;background-color:#04222e}
+            .hero__frame{inset:8px}
+            .hero__tag{right:12px;top:12px}
+            .hero__badge{right:12px;bottom:12px;max-width:calc(100% - 24px)}
+            .hero__trust-grid{grid-template-columns:1fr}
+            .trust__item{padding:9px 0;gap:10px;align-items:center}
+            .trust__item+.trust__item{border-right:0;border-top:1px solid rgba(255,255,255,.1)}
+            .trust__item .icon{width:18px;height:18px}
+            .trust__item strong{font-size:13px;line-height:1.5}
+            .trust__item p{font-size:11px;line-height:1.5}
+
+            /* ---- categories: 2x2, compact ---- */
+            .section-head{margin-bottom:20px;gap:12px}
+            .section-desc{font-size:14.5px;margin-top:6px}
+            .categories{grid-template-columns:1fr 1fr;gap:12px}
+            .category-card{padding:6px;border-radius:16px}
+            .category-card:before{top:13px;right:13px;font-size:10px}
+            .category-card .media{aspect-ratio:4/3;max-height:138px}
+            .category-card__body{padding:10px 6px 4px;gap:8px}
+            .cat-title{font-size:17px;line-height:1.4}
+            .cat-sub{font-size:11.5px;line-height:1.45}
+            .round-arrow{width:32px;height:32px;font-size:14px}
+
+            /* ---- products ---- */
+            .products{grid-template-columns:1fr;gap:14px}
+            .section-head .btn{width:100%}
+            .equipment__toolbar{flex-direction:column;align-items:stretch;gap:6px;padding-bottom:8px}
+            /* real RTL scroller: bleeds to the screen edge, nothing clipped at rest */
+            .filters{position:relative;margin-inline:calc(var(--gutter) * -1);padding-inline:var(--gutter);scroll-padding-inline:var(--gutter);scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+            /* tighter tabs so the whole set fits without clipping at 390px and up */
+            .filter{flex:0 0 auto;scroll-snap-align:start;padding:6px 10px;font-size:12.5px}
+            .filters-wrap{position:relative}
+            /* fade cue showing the row continues past the left edge */
+            .filters-wrap:after{content:"";position:absolute;top:0;bottom:0;left:calc(var(--gutter) * -1);width:28px;pointer-events:none;background:linear-gradient(270deg,rgba(242,247,248,0),#eef5f6);opacity:0;transition:opacity .2s ease}
+            .filters-wrap.has-more:after{opacity:1}
+            .results{text-align:right;font-size:12px}
+            .product{padding:6px;border-radius:18px;gap:0}
+            .product .media{aspect-ratio:16/10;max-height:232px}
+            .product__flag{top:14px;right:14px;font-size:10px}
+            .product__body{padding:12px 8px 4px}
+            .product__desc{font-size:14px;margin:4px 0 12px}
+            .product__actions{display:grid;grid-template-columns:1fr auto auto;gap:6px}
+            .product__actions .btn--ghost{padding:7px 12px}
+            .products-more{margin-top:18px}
+            .products-more .btn{width:100%}
+
+            /* ---- visit banner ---- */
+            .visit__inner{padding:40px 0 38px}
+            .visit__copy h2{max-width:14ch}
+            .visit__copy p{font-size:14.5px;margin:8px 0 18px;max-width:34ch}
+            .visit__copy .btn{width:100%}
+            .visit__note{margin-top:14px;font-size:12px}
+
+            /* ---- why mas cool ---- */
+            .advice__lead{font-size:14.5px;margin:8px 0 16px}
+            .advice-point{padding:11px 16px 11px 0;gap:11px}
+            .advice-point h3{font-size:15.5px}
+            .advice-point p{font-size:13px;line-height:1.6}
+            .advice__figure{margin-top:22px}
+            .advice__image{aspect-ratio:auto;height:clamp(250px,70vw,300px);background-position:38% center}
+            .advice__caption{right:12px;bottom:12px;border-radius:var(--r-sm);padding:9px 14px;font-size:11.5px}
+
+            /* ---- process: one continuous vertical timeline ---- */
+            .steps{grid-template-columns:1fr;gap:0;margin-top:26px}
+            .steps:before{content:"";top:19px;bottom:40px;right:19px;left:auto;width:2px;height:auto;background:var(--line-soft)}
+            .step{display:grid;grid-template-columns:38px 1fr;column-gap:14px;align-items:start;border:0;border-radius:0;background:transparent;padding:0 0 22px;text-align:right;box-shadow:none}
+            .step:hover{transform:none;box-shadow:none}
+            .step:last-child{padding-bottom:0}
+            .step__number{width:38px;height:38px;margin:0;font-size:11px;background:#fff;border:2px solid var(--line)}
+            .step--final .step__number{border-color:var(--lime)}
+            .step__body{display:grid;grid-template-columns:auto 1fr;align-items:center;column-gap:10px;row-gap:2px;padding-top:4px}
+            .step__icon{width:30px;height:30px;border-radius:9px;margin:0;grid-row:1}
+            .step__icon .icon{width:17px;height:17px}
+            .step h3{font-size:16.5px;grid-row:1}
+            .step p{grid-column:1/-1;font-size:13.5px;line-height:1.6;max-width:none;margin:0;text-align:right}
+
+            /* ---- faq ---- */
+            .faq__intro p{font-size:13.5px;margin-top:8px;max-width:none}
+            .faq__grid{gap:20px}
+            .faq summary{font-size:14px;padding:12px 0;gap:12px}
+            .faq summary:after{width:26px;height:26px}
+            .faq details{padding:0 14px}
+            .faq details p{font-size:13.5px;padding-bottom:14px}
+
+            /* ---- contact ---- */
+            .contact__grid{gap:20px}
+            .contact__copy h2{max-width:16ch}
+            .contact__copy p{font-size:14.5px;max-width:none}
+            .form{padding:20px;border-radius:18px}
+            .form__grid{grid-template-columns:1fr;gap:12px}
+            .field input,.field select,.field textarea{min-height:50px;font-size:16px}
+            .field textarea{min-height:84px;height:84px}
+            /* native select arrow sits on the correct side for RTL */
+            .field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%235c737e' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-position:left 14px center;background-size:11px 7px;background-repeat:no-repeat;padding-left:36px}
+
+            /* ---- footer ---- */
+            .footer{padding:28px 0 16px}
+            .footer__grid{grid-template-columns:1fr 1fr;gap:18px 16px}
+            .footer__brand{grid-column:1/-1;padding-bottom:4px;border-bottom:1px solid rgba(255,255,255,.08)}
+            .footer__start{grid-column:1/-1}
+            .footer__title{font-size:12.5px;margin-bottom:4px}
+            .footer__links a{font-size:13px;margin:3px 0}
+            .footer__start .footer__links-row{display:flex;flex-wrap:wrap;gap:8px}
+            .footer__bottom{margin-top:18px;padding-top:12px;font-size:11.5px;gap:6px}
         }
-        @media(max-width:400px){
+
+        /* narrow phones: the three actions no longer fit on one row */
+        @media(max-width:375px){
+            :root{--gutter:16px}
             .brand__tag{display:none}
-            .product__actions{flex-wrap:wrap}
-            .product__actions .btn--dark{flex:1 0 100%}
-            .product__actions .btn--ghost{flex:1}
+            .product__actions{grid-template-columns:1fr 1fr}
+            .product__actions .btn--dark{grid-column:1/-1}
+            .cat-sub{display:none}
+            .category-card .media{max-height:124px}
         }
         @media(prefers-reduced-motion:reduce){
             html{scroll-behavior:auto}
@@ -408,10 +552,11 @@
     <symbol id="note" viewBox="0 0 48 48"><path d="M10 7h24l5 5v29H10zM34 7v7h7M16 21h16M16 27h16M16 33h10"/></symbol>
 </defs></svg>
 
+<div class="nav-scrim" hidden></div>
 <header class="header"><div class="header__inner">
     <a class="brand" href="#top" aria-label="mas Cool الرئيسية"><svg class="brand__mark" aria-hidden="true"><use href="#snow"/></svg><div><div class="brand__word">mas Cool</div><div class="brand__tag">معدات التبريد الصناعي</div></div></a>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="nav" aria-label="فتح القائمة">☰</button>
-    <nav class="nav" id="nav" aria-label="القائمة الرئيسية"><a class="active" href="#top">الرئيسية</a><a href="#equipment">المعدات</a><a href="#about">لماذا mas Cool</a><a href="#contact">تواصل معنا</a></nav>
+    <nav class="nav" id="nav" aria-label="القائمة الرئيسية"><div class="nav__head"><span class="nav__title">القائمة</span><button class="nav__close" type="button" aria-label="إغلاق القائمة">×</button></div><a class="active" href="#top">الرئيسية</a><a href="#equipment">المعدات</a><a href="#about">لماذا mas Cool</a><a href="#contact">تواصل معنا</a><a class="btn btn--dark nav__cta" href="#contact">اطلب عرض سعر <span class="arrow" aria-hidden="true">←</span></a></nav>
     <a class="btn btn--dark header__cta" href="#contact">اطلب عرض سعر <span class="arrow" aria-hidden="true">←</span></a>
 </div></header>
 
@@ -440,7 +585,7 @@
 
 <section class="section equipment" id="equipment" aria-labelledby="equipment-title"><div class="container">
     <div class="section-head"><div class="section-head__text"><p class="eyebrow-label">02 / معدات مختارة</p><h2 class="section-title" id="equipment-title">معدات تستحق نظرة أقرب</h2><p class="section-desc">معدات مختارة بعناية من أفضل العلامات، راجع مواصفاتها قبل الزيارة.</p></div><a class="btn btn--outline" href="#contact">اسأل عن معدة محددة <span class="arrow" aria-hidden="true">←</span></a></div>
-    <div class="equipment__toolbar"><div class="filters" role="group" aria-label="تصفية المعدات"><button class="filter" data-filter="all" aria-pressed="true">الكل</button><button class="filter" data-filter="compressors" aria-pressed="false">كباسات</button><button class="filter" data-filter="coils" aria-pressed="false">كويلات</button><button class="filter" data-filter="units" aria-pressed="false">وحدات تبريد</button><button class="filter" data-filter="condensers" aria-pressed="false">كوندنسرات</button></div><span class="results" id="results" role="status"></span></div>
+    <div class="equipment__toolbar"><div class="filters-wrap"><div class="filters" role="group" aria-label="تصفية المعدات"><button class="filter" data-filter="all" aria-pressed="true">الكل</button><button class="filter" data-filter="compressors" aria-pressed="false">كباسات</button><button class="filter" data-filter="coils" aria-pressed="false">كويلات</button><button class="filter" data-filter="units" aria-pressed="false">وحدات تبريد</button><button class="filter" data-filter="condensers" aria-pressed="false">كوندنسرات</button></div></div><span class="results" id="results" role="status"></span></div>
     <div class="products">
         <article class="product" data-type="condensers"><span class="product__flag">متاح للمعاينة</span><div class="media media--wide"><img src="/mas-cool-assets/condenser-blue.png" width="1672" height="941" loading="lazy" decoding="async" alt="كوندنسر هواء صناعي أزرق بمروحتين"></div><div class="product__body"><span class="product__kicker">مكثفات هوائية</span><h3>كوندنسر هواء</h3><p class="product__desc">مكثف هواء صناعي بمواصفات عالية وتبريد ثابت.</p><div class="product__actions"><button class="btn btn--dark btn--sm" type="button" data-inquire="كوندنسر هواء" data-value="condensers">استفسر عن السعر <span class="arrow" aria-hidden="true">←</span></button><button class="btn btn--ghost btn--sm" type="button">التفاصيل<span class="visually-hidden"> — كوندنسر هواء</span></button><button class="btn btn--ghost btn--sm" type="button">المواصفات<span class="visually-hidden"> — كوندنسر هواء</span></button></div></div></article>
         <article class="product" data-type="coils"><span class="product__flag">متاح للمعاينة</span><div class="media media--wide"><img src="/mas-cool-assets/coil-white.png" width="1672" height="941" loading="lazy" decoding="async" alt="كويل تبريد أبيض بمروحتين"></div><div class="product__body"><span class="product__kicker">تبريد وتجميد</span><h3>كويل تبريد</h3><p class="product__desc">كويل هواء للتبريد والتجميد بمقاسات وقدرات متعددة.</p><div class="product__actions"><button class="btn btn--dark btn--sm" type="button" data-inquire="كويل تبريد" data-value="coils">استفسر عن السعر <span class="arrow" aria-hidden="true">←</span></button><button class="btn btn--ghost btn--sm" type="button">التفاصيل<span class="visually-hidden"> — كويل تبريد</span></button><button class="btn btn--ghost btn--sm" type="button">المواصفات<span class="visually-hidden"> — كويل تبريد</span></button></div></div></article>
@@ -469,9 +614,9 @@
 </div></section>
 
 <section class="section section--compact process" aria-labelledby="process-title"><div class="container"><div class="process__head"><p class="eyebrow-label">04 / خطوات واضحة</p><h2 class="section-title" id="process-title">من أول استفسار لحد المعاينة</h2><p class="section-desc">خطوات بسيطة تضمن لك اختيار المعدة المناسبة.</p></div><div class="steps">
-    <div class="step"><span class="step__number">01</span><span class="step__icon"><svg class="icon" aria-hidden="true"><use href="#note"/></svg></span><h3>حدد احتياجك</h3><p>اخبرنا بنوع الاستخدام والمواصفات التي تبحث عنها.</p></div>
-    <div class="step"><span class="step__number">02</span><span class="step__icon"><svg class="icon" aria-hidden="true"><use href="#search"/></svg></span><h3>راجع التفاصيل</h3><p>استفسر عن الموديل والقدرة والحالة والتوافر والسعر.</p></div>
-    <div class="step step--final"><span class="step__number">03</span><span class="step__icon"><svg class="icon" aria-hidden="true"><use href="#calendar"/></svg></span><h3>احجز المعاينة</h3><p>نسّق موعدًا لمعاينة المعدة والتأكد من ملاءمتها.</p></div>
+    <div class="step"><span class="step__number">01</span><div class="step__body"><span class="step__icon"><svg class="icon" aria-hidden="true"><use href="#note"/></svg></span><h3>حدد احتياجك</h3><p>اخبرنا بنوع الاستخدام والمواصفات التي تبحث عنها.</p></div></div>
+    <div class="step"><span class="step__number">02</span><div class="step__body"><span class="step__icon"><svg class="icon" aria-hidden="true"><use href="#search"/></svg></span><h3>راجع التفاصيل</h3><p>استفسر عن الموديل والقدرة والحالة والتوافر والسعر.</p></div></div>
+    <div class="step step--final"><span class="step__number">03</span><div class="step__body"><span class="step__icon"><svg class="icon" aria-hidden="true"><use href="#calendar"/></svg></span><h3>احجز المعاينة</h3><p>نسّق موعدًا لمعاينة المعدة والتأكد من ملاءمتها.</p></div></div>
 </div></div></section>
 
 <section class="section section--compact faq" aria-labelledby="faq-title"><div class="container faq__grid"><div class="faq__intro"><p class="eyebrow-label">05 / نجاوب على أسئلتك</p><h2 id="faq-title">أسئلة قبل الشراء</h2><p>إجابات واضحة تساعدك في اتخاذ القرار المناسب.</p></div><div class="faq__list">
@@ -490,20 +635,70 @@
 </div></section>
 </main>
 
-<footer class="footer"><div class="container"><div class="footer__grid"><div class="footer__brand"><a class="brand" href="#top"><svg class="brand__mark" aria-hidden="true"><use href="#snow"/></svg><div><div class="brand__word">mas Cool</div><div class="brand__tag">معدات التبريد الصناعي</div></div></a></div><div class="footer__links"><h3 class="footer__title">روابط سريعة</h3><a href="#top">الرئيسية</a><a href="#equipment">المعدات</a><a href="#about">لماذا mas Cool</a><a href="#contact">تواصل معنا</a></div><div class="footer__links"><h3 class="footer__title">المعدات</h3><a href="#equipment">كباسات</a><a href="#equipment">كويلات تبريد</a><a href="#equipment">وحدات تكثيف</a><a href="#equipment">كوندنسرات</a></div><div class="footer__links"><h3 class="footer__title">ابدأ معنا</h3><a href="#contact">اطلب عرض سعر ←</a><a href="#contact">نسّق موعد المعاينة</a></div></div><div class="footer__bottom"><span>© <span id="year"></span> mas Cool — جميع الحقوق محفوظة.</span><a href="#top">العودة للأعلى ↑</a></div></div></footer>
+<footer class="footer"><div class="container"><div class="footer__grid"><div class="footer__brand"><a class="brand" href="#top"><svg class="brand__mark" aria-hidden="true"><use href="#snow"/></svg><div><div class="brand__word">mas Cool</div><div class="brand__tag">معدات التبريد الصناعي</div></div></a></div><div class="footer__links"><h3 class="footer__title">روابط سريعة</h3><a href="#top">الرئيسية</a><a href="#equipment">المعدات</a><a href="#about">لماذا mas Cool</a><a href="#contact">تواصل معنا</a></div><div class="footer__links"><h3 class="footer__title">المعدات</h3><a href="#equipment">كباسات</a><a href="#equipment">كويلات تبريد</a><a href="#equipment">وحدات تكثيف</a><a href="#equipment">كوندنسرات</a></div><div class="footer__links footer__start"><h3 class="footer__title">ابدأ معنا</h3><div class="footer__links-row"><a href="#contact">اطلب عرض سعر ←</a><a href="#contact">نسّق موعد المعاينة</a></div></div></div><div class="footer__bottom"><span>© <span id="year"></span> mas Cool — جميع الحقوق محفوظة.</span><a href="#top">العودة للأعلى ↑</a></div></div></footer>
 
 <dialog class="dialog" id="request-dialog"><h2>طلبك جاهز</h2><p>انسخ الرسالة وأرسلها عبر وسيلة التواصل المناسبة.</p><textarea id="request-text" readonly aria-label="نص الطلب"></textarea><div class="dialog__actions"><button class="btn btn--lime" id="copy" type="button">نسخ الرسالة</button><button class="btn btn--outline" id="close-dialog" type="button">إغلاق</button></div><div class="status" id="status" role="status"></div></dialog>
 
 <script>
 'use strict';
+/* ---- mobile navigation drawer ---- */
 const menuButton=document.querySelector('.menu-toggle');
 const nav=document.querySelector('#nav');
-menuButton.addEventListener('click',()=>{const open=nav.classList.toggle('open');menuButton.setAttribute('aria-expanded',String(open));menuButton.textContent=open?'×':'☰';});
-nav.addEventListener('click',e=>{if(e.target.closest('a')){nav.classList.remove('open');menuButton.setAttribute('aria-expanded','false');menuButton.textContent='☰';}});
+const navScrim=document.querySelector('.nav-scrim');
+const navClose=document.querySelector('.nav__close');
+const focusablesIn=el=>[...el.querySelectorAll('a[href],button:not([disabled])')].filter(n=>n.getClientRects().length>0);
+let navOpen=false;
+function setNav(open){
+    if(navOpen===open)return;
+    navOpen=open;
+    nav.classList.toggle('open',open);
+    navScrim.classList.toggle('open',open);
+    navScrim.hidden=!open;
+    document.body.classList.toggle('nav-locked',open);
+    menuButton.setAttribute('aria-expanded',String(open));
+    /* focus the panel; retry on a timer rather than rAF, which never fires in a hidden tab */
+    if(open){
+        const moveFocus=()=>{const f=focusablesIn(nav);(f[0]||nav).focus({preventScroll:true});};
+        moveFocus();
+        if(!nav.contains(document.activeElement))setTimeout(moveFocus,0);
+    }
+    else{menuButton.focus({preventScroll:true});}
+}
+menuButton.addEventListener('click',()=>setNav(!navOpen));
+navClose.addEventListener('click',()=>setNav(false));
+navScrim.addEventListener('click',()=>setNav(false));
+nav.addEventListener('click',e=>{if(e.target.closest('a'))setNav(false);});
+addEventListener('keydown',e=>{
+    if(!navOpen)return;
+    if(e.key==='Escape'){e.preventDefault();setNav(false);return;}
+    if(e.key!=='Tab')return;
+    const f=focusablesIn(nav);if(!f.length)return;
+    const first=f[0],last=f[f.length-1];
+    if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+    else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+});
+/* the drawer is a mobile affordance — close it if the viewport grows past the breakpoint */
+matchMedia('(min-width:681px)').addEventListener('change',e=>{if(e.matches)setNav(false);});
+
+/* ---- filter scroller: show a fade while more tabs remain past the edge ---- */
+const filtersEl=document.querySelector('.filters');
+const filtersWrap=document.querySelector('.filters-wrap');
+function updateFilterCue(){
+    const more=filtersEl.scrollWidth-filtersEl.clientWidth-Math.abs(filtersEl.scrollLeft)>2;
+    filtersWrap.classList.toggle('has-more',more);
+}
+filtersEl.addEventListener('scroll',updateFilterCue,{passive:true});
+addEventListener('resize',updateFilterCue,{passive:true});
+addEventListener('load',updateFilterCue);
+if('ResizeObserver' in window)new ResizeObserver(updateFilterCue).observe(filtersEl);
+updateFilterCue();
 const filters=[...document.querySelectorAll('[data-filter]')];
 const products=[...document.querySelectorAll('.product')];
 const result=document.querySelector('#results');
-function applyFilter(type='all'){let count=0;products.forEach(card=>{const show=type==='all'||card.dataset.type===type;card.classList.toggle('hidden',!show);if(show)count++;});filters.forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.filter===type)));result.textContent=`عرض ${count} من ${products.length} معدات`;}
+function applyFilter(type='all'){let count=0;products.forEach(card=>{const show=type==='all'||card.dataset.type===type;card.classList.toggle('hidden',!show);if(show)count++;});filters.forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.filter===type)));result.textContent=`عرض ${count} من ${products.length} معدات`;
+const active=filters.find(b=>b.dataset.filter===type);
+if(active&&filtersEl.scrollWidth>filtersEl.clientWidth)active.scrollIntoView({block:'nearest',inline:'nearest'});
+updateFilterCue();}
 filters.forEach(btn=>btn.addEventListener('click',()=>applyFilter(btn.dataset.filter)));
 document.querySelectorAll('[data-category]').forEach(btn=>btn.addEventListener('click',()=>{applyFilter(btn.dataset.category);document.querySelector('#equipment').scrollIntoView({block:'start'});}));
 document.querySelectorAll('[data-inquire]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelector('#type').value=btn.dataset.value;document.querySelector('#message').value=`أرغب في معرفة السعر والتوافر والمواصفات الخاصة بـ ${btn.dataset.inquire}.`;document.querySelector('#contact').scrollIntoView({block:'start'});}));
