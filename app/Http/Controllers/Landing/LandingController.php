@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\Landing\BlogService;
 use App\Services\Landing\LandingPageService;
 use App\Models\Setting\ContactSetting;
+use App\Services\Landing\MasCoolHomePageService;
 use Illuminate\Http\Request;
 
 class LandingController extends Controller
@@ -27,11 +28,9 @@ class LandingController extends Controller
         return view('landing.index', $this->landingService->getLandingData());
     }
 
-    public function masCool()
+    public function masCool(MasCoolHomePageService $homePageService)
     {
-        return view('mas-cool', [
-            'contactSetting' => ContactSetting::query()->first(),
-        ]);
+        return view('mas-cool', $homePageService->getHomePageData());
     }
 
     /**

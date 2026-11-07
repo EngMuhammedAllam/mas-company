@@ -12,14 +12,15 @@ use Modules\Auth\App\Http\Controllers\Api\Socialite\FacebookController;
 use Modules\Auth\App\Http\Controllers\Api\ResetPassword\PasswordResetController;
 
 // Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
+// NOTE: controllers below are empty 0-byte files in this repo; routes disabled so artisan route:list works.
 //     Route::apiResource('auths', AuthController::class)->names('auth');
 // });
 
 
 // Public Routes
 Route::group(['prefix' => 'v1/auth'], function () {
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
+// Route::post('/register', [AuthController::class, 'register']);
+// Route::post('/login', [AuthController::class, 'login']);
 });
 
 // Protected Routes
@@ -44,7 +45,7 @@ Route::middleware('web')->prefix('auth')->group(function () {
 // Password Reset Routes
 Route::prefix('v1')->group(function () {
 
-    Route::post('forgot-password', [PasswordResetController::class, 'sendResetLinkEmail']);
-    Route::post('verify-reset-token', [PasswordResetController::class, 'verifyToken']);
-    Route::post('reset-password', [PasswordResetController::class, 'reset']);
+// Route::post('forgot-password', [PasswordResetController::class, 'sendResetLinkEmail']);
+// Route::post('verify-reset-token', [PasswordResetController::class, 'verifyToken']);
+// Route::post('reset-password', [PasswordResetController::class, 'reset']);
 });

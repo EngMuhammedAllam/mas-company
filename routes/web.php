@@ -16,14 +16,22 @@ use App\Http\Controllers\Dashboard\Testimonial\TestimonialController;
 use App\Http\Controllers\Dashboard\Testimonial\SectionTestimonialController;
 use App\Http\Controllers\Dashboard\Blog\BlogPostController;
 use App\Http\Controllers\Dashboard\Blog\BlogSectionController;
-use App\Http\Controllers\Dashboard\SeoSettingController;
-use App\Http\Controllers\Dashboard\CounterController;
+use App\Http\Controllers\Dashboard\Setting\SeoSettingController;
+use App\Http\Controllers\Dashboard\Counter\CounterController;
 use App\Http\Controllers\Dashboard\Setting\ContactSettingController;
-use App\Http\Controllers\Dashboard\AboutSectionController;
-use App\Http\Controllers\Dashboard\CtaSectionController;
-use App\Http\Controllers\Dashboard\ClientController;
+use App\Http\Controllers\Dashboard\About\AboutSectionController;
+use App\Http\Controllers\Dashboard\Cta\CtaSectionController;
+use App\Http\Controllers\Dashboard\Client\ClientController;
 use App\Http\Controllers\Landing\SitemapController;
 use App\Http\Controllers\Landing\RobotsTxtController;
+use App\Http\Controllers\Landing\WhatsappTrackingController;
+use App\Http\Controllers\Dashboard\HomePage\HomePageEditorController;
+use App\Http\Controllers\Dashboard\HomePage\HomeSectionController as HomePageSectionController;
+use App\Http\Controllers\Dashboard\HomePage\HomeSectionItemController;
+use App\Http\Controllers\Dashboard\HomePage\HomeSeoController;
+use App\Http\Controllers\Dashboard\HomePage\EquipmentCategoryController;
+use App\Http\Controllers\Dashboard\HomePage\EquipmentProductController;
+use App\Http\Controllers\Dashboard\HomePage\HomeOverviewController;
 
 //  ========================================== Default Redirect ==========================================
 
@@ -41,12 +49,57 @@ Route::get('/mas-cool-assets/{filename}', function (string $filename) {
 Route::get('/blog/{id}', [LandingController::class, 'showSingleBlog'])->name('blog.show');
 Route::get('/blog/category/{id}', [LandingController::class, 'showBlogCategory'])->name('blog.category');
 Route::post('/contact-submit', [ContactController::class, 'store'])->name('contact.submit');
+Route::post('/whatsapp/track', [WhatsappTrackingController::class, 'store'])
+    ->middleware('throttle:60,1')
+    ->name('whatsapp.track');
 Route::get('/robots.txt', [RobotsTxtController::class, 'index']);
 Route::get('/sitemap.xml', [SitemapController::class, 'index']);
 
 // ############################## [[== Admin ==]] Routes ################################### //
 Route::group(['middleware' => ['check_auth']], function () {
-    Route::get('/admin', [DashboardController::class, 'index'])->name('dashboard');
+    // /admin now opens the mas Cool Home Page CMS overview.
+    // The legacy statistics screen stays reachable at /admin/legacy.
+    Route::get('/admin', HomeOverviewController::class)->name('dashboard');
+    Route::get('/admin/legacy', [DashboardController::class, 'index'])->name('dashboard.legacy');
+
+
+    // ######################## [mas Cool Home Page CMS] ########################
+    // One central editor for every ordinary section (including the FAQ,
+    // process, advice, trust and hero-benefit repeaters).
+    Route::get('/admin/home-page', HomePageEditorController::class)->name('admin.home.editor');
+
+    Route::prefix('admin/home-page')->name('admin.home.')->group(function () {
+        Route::put('/sections/{section}', [HomePageSectionController::class, 'update'])->name('sections.update');
+        Route::patch('/sections/{section}/toggle', [HomePageSectionController::class, 'toggle'])->name('sections.toggle');
+
+        // inline repeater rows — no standalone pages for these
+        Route::post('/sections/{section}/items', [HomeSectionItemController::class, 'store'])->name('items.store');
+        Route::put('/sections/{section}/items/{item}', [HomeSectionItemController::class, 'update'])->name('items.update');
+        Route::delete('/sections/{section}/items/{item}', [HomeSectionItemController::class, 'destroy'])->name('items.destroy');
+        Route::patch('/sections/{section}/items/{item}/toggle', [HomeSectionItemController::class, 'toggle'])->name('items.toggle');
+        Route::patch('/sections/{section}/items/{item}/reorder', [HomeSectionItemController::class, 'reorder'])->name('items.reorder');
+
+        Route::put('/seo', [HomeSeoController::class, 'update'])->name('seo.update');
+    });
+
+    // ######################## [Equipment catalog] ########################
+    Route::prefix('admin/equipment')->name('admin.equipment.')->group(function () {
+        Route::get('/categories', [EquipmentCategoryController::class, 'index'])->name('categories.index');
+        Route::get('/categories/create', [EquipmentCategoryController::class, 'create'])->name('categories.create');
+        Route::post('/categories', [EquipmentCategoryController::class, 'store'])->name('categories.store');
+        Route::get('/categories/{category}/edit', [EquipmentCategoryController::class, 'edit'])->name('categories.edit');
+        Route::put('/categories/{category}', [EquipmentCategoryController::class, 'update'])->name('categories.update');
+        Route::delete('/categories/{category}', [EquipmentCategoryController::class, 'destroy'])->name('categories.destroy');
+        Route::patch('/categories/{category}/toggle', [EquipmentCategoryController::class, 'toggle'])->name('categories.toggle');
+
+        Route::get('/products', [EquipmentProductController::class, 'index'])->name('products.index');
+        Route::get('/products/create', [EquipmentProductController::class, 'create'])->name('products.create');
+        Route::post('/products', [EquipmentProductController::class, 'store'])->name('products.store');
+        Route::get('/products/{product}/edit', [EquipmentProductController::class, 'edit'])->name('products.edit');
+        Route::put('/products/{product}', [EquipmentProductController::class, 'update'])->name('products.update');
+        Route::delete('/products/{product}', [EquipmentProductController::class, 'destroy'])->name('products.destroy');
+        Route::patch('/products/{product}/toggle', [EquipmentProductController::class, 'toggle'])->name('products.toggle');
+    });
 
     // ############################ [Hero] Section Route ############################
     Route::get('/hero/edit', [HeroSectionController::class, 'index'])->name('admin.hero.edite');
