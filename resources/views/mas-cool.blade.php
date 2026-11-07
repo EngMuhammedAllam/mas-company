@@ -98,20 +98,25 @@
            ============================================================ */
         .header{position:sticky;top:0;z-index:60;height:var(--header-h);display:flex;align-items:center;background:rgba(248,251,251,.92);backdrop-filter:blur(16px);border-bottom:1px solid transparent;transition:border-color .2s ease,box-shadow .2s ease}
         .header.is-stuck{border-bottom-color:var(--line);box-shadow:0 2px 14px rgba(5,43,57,.05)}
-        .header__inner{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:24px;width:min(var(--container),100% - var(--gutter) * 2);margin-inline:auto}
-        .brand{display:flex;align-items:center;gap:10px}
+        .header__inner{display:grid;grid-template-columns:minmax(220px,1fr) auto minmax(220px,1fr);align-items:center;gap:24px;width:min(var(--container),100% - var(--gutter) * 2);margin-inline:auto}
+        .brand{display:flex;align-items:center;gap:10px;grid-column:1;justify-self:end}
         .brand__mark{width:38px;height:38px;padding:7px;border-radius:10px;color:var(--lime);background:var(--navy);flex:none}
         .brand__word{font-family:Arial,sans-serif;font-size:23px;line-height:1.1;font-weight:800;letter-spacing:-1.1px;direction:ltr}
         .brand__tag{font-size:10px;line-height:1.4;color:var(--muted-soft)}
         /* nav: quiet by default, a thin lime rule marks the active section */
-        .nav{display:flex;align-items:center;justify-content:center;gap:4px;font-size:14px;font-weight:700;justify-self:center}
+        .nav{display:flex;grid-column:2;align-items:center;justify-content:center;gap:4px;font-size:14px;font-weight:700;justify-self:center}
         .nav a{position:relative;padding:9px 14px;border-radius:var(--r-sm);color:#44616d;white-space:nowrap;transition:color .2s ease,background .2s ease}
         .nav a:after{content:"";position:absolute;right:14px;left:14px;bottom:3px;height:2px;border-radius:2px;background:var(--lime);transform:scaleX(0);transition:transform .2s ease}
         .nav a:hover{color:var(--navy);background:var(--ice)}
         .nav a.active{color:var(--navy)}
         .nav a.active:after{transform:scaleX(1)}
-        .header__cta{min-height:42px;padding:8px 18px;font-size:13px}
+        .header__cta{grid-column:3;justify-self:start;min-height:42px;padding:8px 18px;font-size:13px}
         .menu-toggle{display:none;width:42px;height:42px;border:1px solid var(--line);border-radius:var(--r-sm);background:#fff;color:var(--navy);font-size:19px}
+        .nav__head,.nav__cta,.nav-scrim{display:none}
+
+        @media(min-width:1024px){
+            .menu-toggle,.nav__head,.nav__cta,.nav-scrim{display:none}
+        }
 
         /* ============================================================
            4. HERO — copy and equipment share one dark field
@@ -336,11 +341,33 @@
             .hero__grid{gap:28px}
             .media{max-height:224px}
         }
-        @media(max-width:900px){
+        @media(max-width:1023px){
             :root{--header-h:68px}
+            .header{border-bottom:1px solid var(--line);backdrop-filter:none;background:#f8fbfb}
+            .header.is-stuck{box-shadow:0 1px 10px rgba(5,43,57,.07)}
             .header__inner{display:flex;justify-content:space-between}
+            .brand{grid-column:auto;justify-self:auto}
             .header__cta{display:none}
-            .menu-toggle{display:grid;place-items:center}
+            .menu-toggle{display:grid;place-items:center;border-color:#cbd9de}
+
+            /* navigation becomes an off-canvas drawer below the single header breakpoint */
+            .nav{position:fixed;inset:0 0 0 auto;z-index:90;display:flex;visibility:hidden;opacity:0;width:min(84vw,320px);grid-column:auto;justify-self:auto;flex-direction:column;align-items:stretch;justify-content:flex-start;overflow-y:auto;gap:2px;padding:18px var(--gutter) 22px;background:#fff;border:0;box-shadow:-18px 0 44px rgba(3,29,39,.22);transform:translateX(100%);transition:transform .26s ease,opacity .26s ease}
+            .nav.open{visibility:visible;opacity:1;transform:none}
+            .nav a{padding:14px 12px;text-align:right;font-size:15px;border-bottom:1px solid var(--line-soft)}
+            .nav a:after{display:none}
+            .nav a.active{background:var(--ice);border-radius:var(--r-sm);border-bottom-color:transparent;box-shadow:inset 3px 0 0 var(--lime)}
+            .nav__head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+            .nav__title{font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--muted)}
+            .nav__close{width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--line);border-radius:var(--r-sm);background:#fff;font-size:20px;color:var(--navy)}
+            .nav a.nav__cta{display:inline-flex;margin-top:16px;width:100%;color:#fff;border-bottom-color:transparent}
+            .nav a.nav__cta:hover{background:var(--navy-mid);color:#fff}
+            .nav-scrim{position:fixed;inset:0;z-index:80;display:block;background:rgba(3,29,39,.5);opacity:0;visibility:hidden;transition:opacity .26s ease}
+            .nav-scrim[hidden]{display:none}
+            .nav-scrim.open{opacity:1;visibility:visible}
+            body.nav-locked{overflow:hidden}
+            body.nav-locked .header{z-index:95}
+        }
+        @media(max-width:900px){
             .hero__grid{grid-template-columns:1fr;padding-bottom:32px}
             .hero__copy{max-width:none}
             .hero__visual{grid-row:2;aspect-ratio:16/9;max-height:320px}
@@ -378,33 +405,8 @@
         @media(max-width:680px){
             :root{--gutter:20px;--sec-y:clamp(48px,11vw,60px);--sec-y-compact:clamp(36px,9vw,46px);--fs-h1:clamp(38px,11vw,46px);--fs-h2:clamp(29px,8vw,35px);--fs-h3:clamp(22px,6.2vw,26px);--fs-body:16px}
 
-            /* header: flat, stable, no curved white edge over the dark hero.
-               backdrop-filter is dropped here because it would make the header the
-               containing block for the position:fixed drawer nested inside it. */
-            .header{border-bottom:1px solid var(--line);backdrop-filter:none;background:#f8fbfb}
-            .header.is-stuck{box-shadow:0 1px 10px rgba(5,43,57,.07)}
             .brand__mark{width:36px;height:36px}
             .brand__word{font-size:21px}
-            .menu-toggle{border-color:#cbd9de}
-
-            /* ---- navigation drawer ---- */
-            .nav{position:fixed;inset:0 0 0 auto;z-index:90;display:flex;visibility:hidden;opacity:0;width:min(84vw,320px);justify-self:auto;flex-direction:column;align-items:stretch;justify-content:flex-start;overflow-y:auto;gap:2px;padding:18px var(--gutter) 22px;background:#fff;border:0;box-shadow:-18px 0 44px rgba(3,29,39,.22);transform:translateX(100%);transition:transform .26s ease,opacity .26s ease}
-            /* visibility flips instantly so the panel is focusable the moment it opens;
-               only the slide and fade are animated */
-            .nav.open{visibility:visible;opacity:1;transform:none}
-            .nav a{padding:14px 12px;text-align:right;font-size:15px;border-bottom:1px solid var(--line-soft)}
-            .nav a:after{display:none}
-            .nav a.active{background:var(--ice);border-radius:var(--r-sm);border-bottom-color:transparent;box-shadow:inset 3px 0 0 var(--lime)}
-            .nav__head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
-            .nav__title{font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--muted)}
-            .nav__close{width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--line);border-radius:var(--r-sm);background:#fff;font-size:20px;color:var(--navy)}
-            .nav__cta{margin-top:16px;width:100%}
-            .nav-scrim{position:fixed;inset:0;z-index:80;background:rgba(3,29,39,.5);opacity:0;visibility:hidden;transition:opacity .26s ease}
-            .nav-scrim.open{opacity:1;visibility:visible}
-            body.nav-locked{overflow:hidden}
-            /* the drawer lives inside the header's stacking context, so the header must
-               outrank the scrim while it is open or the scrim would paint over the panel */
-            body.nav-locked .header{z-index:95}
 
             /* ---- hero: tighter, image closer to the copy ---- */
             .hero{border-radius:0}
@@ -556,7 +558,7 @@
 <header class="header"><div class="header__inner">
     <a class="brand" href="#top" aria-label="mas Cool الرئيسية"><svg class="brand__mark" aria-hidden="true"><use href="#snow"/></svg><div><div class="brand__word">mas Cool</div><div class="brand__tag">معدات التبريد الصناعي</div></div></a>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="nav" aria-label="فتح القائمة">☰</button>
-    <nav class="nav" id="nav" aria-label="القائمة الرئيسية"><div class="nav__head"><span class="nav__title">القائمة</span><button class="nav__close" type="button" aria-label="إغلاق القائمة">×</button></div><a class="active" href="#top">الرئيسية</a><a href="#equipment">المعدات</a><a href="#about">لماذا mas Cool</a><a href="#contact">تواصل معنا</a><a class="btn btn--dark nav__cta" href="#contact">اطلب عرض سعر <span class="arrow" aria-hidden="true">←</span></a></nav>
+    <nav class="nav" id="nav" aria-label="القائمة الرئيسية" aria-hidden="false" tabindex="-1"><div class="nav__head"><span class="nav__title">القائمة</span><button class="nav__close" type="button" aria-label="إغلاق القائمة">×</button></div><a class="active" href="#top">الرئيسية</a><a href="#equipment">المعدات</a><a href="#about">لماذا mas Cool</a><a href="#contact">تواصل معنا</a><a class="btn btn--dark nav__cta" href="#contact">اطلب عرض سعر <span class="arrow" aria-hidden="true">←</span></a></nav>
     <a class="btn btn--dark header__cta" href="#contact">اطلب عرض سعر <span class="arrow" aria-hidden="true">←</span></a>
 </div></header>
 
@@ -646,28 +648,44 @@ const menuButton=document.querySelector('.menu-toggle');
 const nav=document.querySelector('#nav');
 const navScrim=document.querySelector('.nav-scrim');
 const navClose=document.querySelector('.nav__close');
+const desktopHeader=matchMedia('(min-width:1024px)');
 const focusablesIn=el=>[...el.querySelectorAll('a[href],button:not([disabled])')].filter(n=>n.getClientRects().length>0);
 let navOpen=false;
-function setNav(open){
-    if(navOpen===open)return;
+function setNav(open,{restoreFocus=true,clearStyles=false}={}){
+    open=Boolean(open)&&!desktopHeader.matches;
+    const wasOpen=navOpen;
     navOpen=open;
     nav.classList.toggle('open',open);
     navScrim.classList.toggle('open',open);
     navScrim.hidden=!open;
     document.body.classList.toggle('nav-locked',open);
     menuButton.setAttribute('aria-expanded',String(open));
+    nav.setAttribute('aria-hidden',String(!desktopHeader.matches&&!open));
+    nav.toggleAttribute('inert',!desktopHeader.matches&&!open);
+    navScrim.setAttribute('aria-hidden',String(!open));
+    if(clearStyles){
+        nav.removeAttribute('style');
+        navScrim.removeAttribute('style');
+        document.body.style.removeProperty('overflow');
+        if(!document.body.style.length)document.body.removeAttribute('style');
+    }
     /* focus the panel; retry on a timer rather than rAF, which never fires in a hidden tab */
     if(open){
         const moveFocus=()=>{const f=focusablesIn(nav);(f[0]||nav).focus({preventScroll:true});};
         moveFocus();
         if(!nav.contains(document.activeElement))setTimeout(moveFocus,0);
     }
-    else{menuButton.focus({preventScroll:true});}
+    else if(wasOpen){
+        if(desktopHeader.matches&&nav.contains(document.activeElement)){
+            (nav.querySelector('a.active')||nav.querySelector('a[href]'))?.focus({preventScroll:true});
+        }
+        else if(restoreFocus&&!desktopHeader.matches){menuButton.focus({preventScroll:true});}
+    }
 }
 menuButton.addEventListener('click',()=>setNav(!navOpen));
 navClose.addEventListener('click',()=>setNav(false));
 navScrim.addEventListener('click',()=>setNav(false));
-nav.addEventListener('click',e=>{if(e.target.closest('a'))setNav(false);});
+nav.addEventListener('click',e=>{if(e.target.closest('a'))setNav(false,{restoreFocus:false});});
 addEventListener('keydown',e=>{
     if(!navOpen)return;
     if(e.key==='Escape'){e.preventDefault();setNav(false);return;}
@@ -678,7 +696,9 @@ addEventListener('keydown',e=>{
     else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
 });
 /* the drawer is a mobile affordance — close it if the viewport grows past the breakpoint */
-matchMedia('(min-width:681px)').addEventListener('change',e=>{if(e.matches)setNav(false);});
+function syncHeaderViewport(){setNav(false,{restoreFocus:false,clearStyles:desktopHeader.matches});}
+desktopHeader.addEventListener('change',syncHeaderViewport);
+syncHeaderViewport();
 
 /* ---- filter scroller: show a fade while more tabs remain past the edge ---- */
 const filtersEl=document.querySelector('.filters');
