@@ -1,0 +1,64 @@
+@extends('dashboard.layouts.master')
+
+@section('title', 'إضافة تصنيف جديد')
+
+@section('content')
+<div class="main-content app-content">
+    <div class="container-fluid">
+        <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+            <div>
+                <h1 class="page-title fw-semibold fs-18 mb-0">إضافة تصنيف جديد</h1>
+            </div>
+            <div class="ms-md-1 ms-0">
+                <nav>
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">الرئيسية</a></li>
+                        <li class="breadcrumb-item"><a href="">المشاريع</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">إضافة تصنيف</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card custom-card">
+                    <div class="card-header">
+                        <div class="card-title">بيانات التصنيف</div>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ route('admin.projects.categories.store') }}" method="POST">
+                            @csrf
+
+                            <div class="mb-3">
+                                <label class="form-label">
+                                 @error('name')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                                     اسم التصنيف</label>
+                                <input type="text" name="name" class="form-control" value="{{ old('name') }}" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Slug (للرابط)
+                                @error('slug')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                                </label>
+                                <input type="text" name="slug" class="form-control" value="{{ old('slug') }}" required>
+                            </div>
+
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" name="is_active" class="form-check-input" id="isActive" {{ old('is_active') ? 'checked' : '' }}>
+                                <label class="form-check-label" for="isActive">تفعيل التصنيف</label>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">إضافة التصنيف</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
