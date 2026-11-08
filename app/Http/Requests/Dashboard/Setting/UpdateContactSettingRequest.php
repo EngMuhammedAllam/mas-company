@@ -22,8 +22,6 @@ class UpdateContactSettingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
             'email' => 'nullable|email',
             'phone' => 'nullable|string',
             'whatsapp_number' => ['nullable', 'string', 'max:30', 'regex:/^\+?[0-9\s()\-]{8,30}$/'],

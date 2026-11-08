@@ -54,6 +54,7 @@
             </a>
         </div>
 
+        {{-- Legacy navigation is intentionally hidden from the active CMS sidebar.
         <details class="nav__group" @if($legacyOpen) open @endif>
             <summary>محتوى قديم (Legacy)</summary>
             @foreach($legacyNav as $item)
@@ -62,5 +63,6 @@
                 </a>
             @endforeach
         </details>
+        --}}
     </nav>
 </aside>

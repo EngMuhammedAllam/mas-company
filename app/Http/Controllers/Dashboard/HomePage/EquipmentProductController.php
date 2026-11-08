@@ -75,7 +75,7 @@ class EquipmentProductController extends Controller
 
     public function update(EquipmentProductRequest $request, EquipmentProduct $product): RedirectResponse
     {
-        $data = $this->payload($request);
+        $data = $this->payload($request, $product);
         $data['slug'] = $this->content->uniqueSlug('equipment_products', $data['slug'] ?? $product->slug, $data['name'], $product->id);
 
         // no file on the request means the approved image stays untouched
@@ -100,18 +100,31 @@ class EquipmentProductController extends Controller
     }
 
     /** @return array<string, mixed> */
-    private function payload(EquipmentProductRequest $request): array
+    private function payload(EquipmentProductRequest $request, ?EquipmentProduct $product = null): array
     {
         $data = $request->validated();
-        $data['is_active'] = $request->boolean('is_active');
         $data['is_available'] = $request->boolean('is_available');
-        $data['is_featured'] = $request->boolean('is_featured');
+        $category = EquipmentCategory::query()->findOrFail($data['equipment_category_id']);
 
-        // drop blank specification rows
-        $data['specifications'] = collect($data['specifications'] ?? [])
-            ->filter(fn ($row) => filled($row['label'] ?? null) || filled($row['value'] ?? null))
-            ->values()
-            ->all() ?: null;
+        // Technical presentation values are derived automatically so the editor
+        // only asks the administrator for meaningful product information.
+        $data['kicker'] = $category->name;
+        $data['image_alt'] = $data['name'];
+        $data['media_shape'] = match ($category->media_shape) {
+            'sq' => EquipmentProduct::SHAPE_SQUARE,
+            'xwide' => EquipmentProduct::SHAPE_XWIDE,
+            default => EquipmentProduct::SHAPE_WIDE,
+        };
+        $data['availability_label'] = $data['is_available'] ? 'متاح للمعاينة' : null;
+        $data['whatsapp_price_message'] = "مرحبًا mas Cool، أرغب في معرفة السعر والتوافر الخاص بـ {$data['name']}.";
+        $data['whatsapp_details_message'] = "مرحبًا mas Cool، أريد تفاصيل أكثر عن {$data['name']}.";
+        $data['whatsapp_specs_message'] = "مرحبًا mas Cool، أريد المواصفات الفنية الكاملة لـ {$data['name']}.";
+
+        if (! $product?->exists) {
+            $data['is_active'] = true;
+            $data['is_featured'] = false;
+            $data['sort_order'] = ((int) EquipmentProduct::query()->max('sort_order')) + 1;
+        }
 
         return $data;
     }

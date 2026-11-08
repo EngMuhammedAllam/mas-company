@@ -128,6 +128,23 @@
         .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--lime-deep);box-shadow:0 0 0 3px rgba(212,248,63,.3)}
         .field .is-invalid,.field input.is-invalid,.field textarea.is-invalid,.field select.is-invalid{border-color:var(--danger);box-shadow:0 0 0 3px rgba(179,38,30,.1)}
         .field .error{display:block;font-size:12.5px;color:var(--danger);margin-top:5px;font-weight:600}
+        .custom-select{position:relative;width:100%;min-width:0}
+        .custom-select__native{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important;border:0!important;opacity:0!important;pointer-events:none!important}
+        .custom-select__button{width:100%;min-height:46px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 13px;border:1px solid #d3e0e5;border-radius:var(--r-sm);background:#fff;color:var(--ink);font-size:14px;text-align:start;cursor:pointer;outline:0;transition:border-color .18s ease,box-shadow .18s ease,background .18s ease}
+        .custom-select__button:hover{border-color:#afc4cc;background:#fcfefe}
+        .custom-select__button:focus-visible,.custom-select.is-open .custom-select__button{border-color:var(--lime-deep);box-shadow:0 0 0 3px rgba(212,248,63,.3)}
+        .custom-select.is-invalid .custom-select__button{border-color:var(--danger);box-shadow:0 0 0 3px rgba(179,38,30,.1)}
+        .custom-select__button[disabled]{background:var(--ice);color:var(--muted-soft);cursor:not-allowed}
+        .custom-select__value{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .custom-select__chevron{width:8px;height:8px;border-inline-end:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);transition:transform .18s ease;flex:none;margin-inline-end:2px}
+        .custom-select.is-open .custom-select__chevron{transform:rotate(225deg);margin-top:5px}
+        .custom-select__menu{position:fixed;z-index:1000;padding:6px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-lg);overflow-y:auto;overscroll-behavior:contain}
+        .custom-select__menu[hidden]{display:none}
+        .custom-select__option{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:40px;padding:8px 10px;border:0;border-radius:8px;background:transparent;color:var(--ink);font-size:13.5px;text-align:start;cursor:pointer}
+        .custom-select__option:hover,.custom-select__option.is-active{background:var(--ice)}
+        .custom-select__option[aria-selected="true"]{background:var(--lime-soft);color:var(--navy);font-weight:800}
+        .custom-select__option[aria-selected="true"]:after{content:"✓";font-size:12px;color:var(--lime-deep);flex:none}
+        .custom-select__option[disabled]{opacity:.45;cursor:not-allowed}
         .switch{display:inline-flex;align-items:center;gap:9px;cursor:pointer;font-size:13.5px;font-weight:700;min-height:44px}
         .switch input{position:absolute;opacity:0;width:0;height:0}
         .switch__track{width:42px;height:24px;border-radius:var(--r-pill);background:#cbd9de;position:relative;transition:background .18s ease;flex:none}
@@ -162,6 +179,7 @@
         .filterbar{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
         .filterbar .field{flex:1 1 170px}
         .filterbar input,.filterbar select{min-height:42px}
+        .filterbar .custom-select__button{min-height:42px;padding-block:8px}
 
         /* ---------- flash ---------- */
         .flash{display:flex;align-items:flex-start;gap:10px;padding:12px 15px;border-radius:var(--r-md);font-size:13.5px;font-weight:600;margin-bottom:16px;border:1px solid}
@@ -203,6 +221,9 @@
             .form-grid{grid-template-columns:1fr}
             .card__body{padding:14px}
             .content{padding:14px}
+            .custom-select__button{min-height:44px;padding:8px 10px;font-size:13px}
+            .custom-select__menu{padding:5px;border-radius:11px}
+            .custom-select__option{min-height:42px;font-size:13px}
             /* tables become stacked cards */
             table.tbl{min-width:0}
             table.tbl thead{display:none}
@@ -344,6 +365,198 @@
             if(img&&file)img.src=URL.createObjectURL(file);
         });
     });
+
+    // Accessible custom select — keeps the native value for forms, but never
+    // exposes the browser/OS dropdown UI to the administrator.
+    const customSelects=[];
+    let customSelectId=0;
+
+    function closeCustomSelects(except=null){
+        customSelects.forEach(instance=>{if(instance!==except)instance.close();});
+    }
+
+    function enhanceSelect(select){
+        if(select.dataset.customSelectReady==='true'||select.multiple)return;
+        select.dataset.customSelectReady='true';
+
+        if(!select.id)select.id=`mas-select-${++customSelectId}`;
+        const wrapper=document.createElement('div');
+        wrapper.className='custom-select';
+        if(select.classList.contains('is-invalid'))wrapper.classList.add('is-invalid');
+
+        const button=document.createElement('button');
+        button.type='button';
+        button.className='custom-select__button';
+        button.setAttribute('role','combobox');
+        button.setAttribute('aria-haspopup','listbox');
+        button.setAttribute('aria-expanded','false');
+        button.disabled=select.disabled;
+
+        const value=document.createElement('span');
+        value.className='custom-select__value';
+        const chevron=document.createElement('span');
+        chevron.className='custom-select__chevron';
+        chevron.setAttribute('aria-hidden','true');
+        button.append(value,chevron);
+
+        const menu=document.createElement('div');
+        menu.className='custom-select__menu';
+        menu.id=`${select.id}-listbox`;
+        menu.setAttribute('role','listbox');
+        menu.hidden=true;
+        menu.dir=getComputedStyle(select).direction||'rtl';
+        button.setAttribute('aria-controls',menu.id);
+
+        const labels=Array.from(document.querySelectorAll('label')).filter(label=>label.htmlFor===select.id);
+        const accessibleLabel=labels.map(label=>label.textContent.trim()).filter(Boolean).join('، ')||select.getAttribute('aria-label')||'اختر من القائمة';
+        button.setAttribute('aria-label',accessibleLabel);
+
+        const optionButtons=Array.from(select.options).map((option,index)=>{
+            const item=document.createElement('button');
+            item.type='button';
+            item.className='custom-select__option';
+            item.id=`${menu.id}-option-${index}`;
+            item.setAttribute('role','option');
+            item.dataset.index=String(index);
+            item.textContent=option.textContent.trim();
+            item.disabled=option.disabled;
+            item.tabIndex=-1;
+            menu.appendChild(item);
+            return item;
+        });
+
+        select.parentNode.insertBefore(wrapper,select);
+        wrapper.append(select,button);
+        select.classList.add('custom-select__native');
+        select.tabIndex=-1;
+        select.setAttribute('aria-hidden','true');
+        document.body.appendChild(menu);
+
+        let activeIndex=Math.max(0,select.selectedIndex);
+        let typeahead='';
+        let typeaheadTimer=0;
+
+        function sync(){
+            const selected=select.options[select.selectedIndex];
+            value.textContent=selected?.textContent.trim()||'اختر من القائمة';
+            optionButtons.forEach((item,index)=>item.setAttribute('aria-selected',String(index===select.selectedIndex)));
+            button.disabled=select.disabled;
+        }
+
+        function positionMenu(){
+            const rect=button.getBoundingClientRect();
+            const gap=6;
+            const below=window.innerHeight-rect.bottom-gap;
+            const above=rect.top-gap;
+            const openAbove=below<180&&above>below;
+            const space=Math.max(110,Math.min(280,(openAbove?above:below)-6));
+            menu.style.left=`${rect.left}px`;
+            menu.style.width=`${rect.width}px`;
+            menu.style.maxHeight=`${space}px`;
+            menu.style.top=openAbove?'auto':`${rect.bottom+gap}px`;
+            menu.style.bottom=openAbove?`${window.innerHeight-rect.top+gap}px`:'auto';
+        }
+
+        function setActive(index){
+            if(!optionButtons.length)return;
+            let next=Math.max(0,Math.min(index,optionButtons.length-1));
+            const step=next>=activeIndex?1:-1;
+            while(optionButtons[next]?.disabled&&next>=0&&next<optionButtons.length)next+=step;
+            if(next<0||next>=optionButtons.length)return;
+            activeIndex=next;
+            optionButtons.forEach((item,itemIndex)=>item.classList.toggle('is-active',itemIndex===activeIndex));
+            button.setAttribute('aria-activedescendant',optionButtons[activeIndex].id);
+            optionButtons[activeIndex].scrollIntoView({block:'nearest'});
+        }
+
+        function open(){
+            if(button.disabled)return;
+            closeCustomSelects(instance);
+            wrapper.classList.add('is-open');
+            button.setAttribute('aria-expanded','true');
+            menu.hidden=false;
+            positionMenu();
+            setActive(Math.max(0,select.selectedIndex));
+        }
+
+        function close(){
+            wrapper.classList.remove('is-open');
+            button.setAttribute('aria-expanded','false');
+            button.removeAttribute('aria-activedescendant');
+            menu.hidden=true;
+        }
+
+        function choose(index){
+            if(!select.options[index]||select.options[index].disabled)return;
+            select.selectedIndex=index;
+            select.dispatchEvent(new Event('input',{bubbles:true}));
+            select.dispatchEvent(new Event('change',{bubbles:true}));
+            wrapper.classList.remove('is-invalid');
+            sync();
+            close();
+            button.focus();
+        }
+
+        const instance={select,wrapper,button,menu,open,close,sync};
+        customSelects.push(instance);
+
+        button.addEventListener('click',()=>menu.hidden?open():close());
+        button.addEventListener('keydown',event=>{
+            if(event.key==='ArrowDown'||event.key==='ArrowUp'){
+                event.preventDefault();
+                if(menu.hidden)open();
+                setActive(activeIndex+(event.key==='ArrowDown'?1:-1));
+            }else if(event.key==='Home'&&!menu.hidden){
+                event.preventDefault();setActive(0);
+            }else if(event.key==='End'&&!menu.hidden){
+                event.preventDefault();setActive(optionButtons.length-1);
+            }else if((event.key==='Enter'||event.key===' ')&&!menu.hidden){
+                event.preventDefault();choose(activeIndex);
+            }else if(event.key==='Enter'||event.key===' '){
+                event.preventDefault();open();
+            }else if(event.key==='Escape'&&!menu.hidden){
+                event.preventDefault();close();
+            }else if(event.key==='Tab'){
+                close();
+            }else if(event.key.length===1&&!event.ctrlKey&&!event.metaKey&&!event.altKey){
+                clearTimeout(typeaheadTimer);
+                typeahead+=event.key.toLocaleLowerCase('ar');
+                typeaheadTimer=setTimeout(()=>{typeahead='';},650);
+                const match=Array.from(select.options).findIndex(option=>!option.disabled&&option.textContent.trim().toLocaleLowerCase('ar').startsWith(typeahead));
+                if(match>=0){if(menu.hidden)open();setActive(match);}
+            }
+        });
+
+        optionButtons.forEach((item,index)=>item.addEventListener('click',()=>choose(index)));
+        labels.forEach(label=>label.addEventListener('click',event=>{
+            event.preventDefault();
+            button.focus();
+        }));
+        select.addEventListener('change',sync);
+        select.addEventListener('invalid',()=>{
+            wrapper.classList.add('is-invalid');
+            setTimeout(()=>button.focus(),0);
+        });
+        select.form?.addEventListener('reset',()=>setTimeout(sync,0));
+        sync();
+    }
+
+    document.querySelectorAll('select:not([multiple])').forEach(enhanceSelect);
+    document.addEventListener('click',event=>{
+        if(!customSelects.some(instance=>instance.wrapper.contains(event.target)||instance.menu.contains(event.target)))closeCustomSelects();
+    });
+    addEventListener('resize',()=>closeCustomSelects());
+    addEventListener('scroll',event=>{
+        if(!event.target?.closest?.('.custom-select__menu'))closeCustomSelects();
+    },true);
+
+    new MutationObserver(mutations=>{
+        mutations.forEach(mutation=>mutation.addedNodes.forEach(node=>{
+            if(!(node instanceof Element))return;
+            if(node.matches('select:not([multiple])'))enhanceSelect(node);
+            node.querySelectorAll?.('select:not([multiple])').forEach(enhanceSelect);
+        }));
+    }).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
 @stack('scripts')
