@@ -1,21 +1,72 @@
 @php
+    use App\Support\HomeMedia;
+
+    /** Safe fallbacks so the page still renders if the CMS tables are empty. */
+    $sections   = $sections   ?? collect();
+    $items      = $items      ?? collect();
+    $categories = $categories ?? collect();
+    $products   = $products   ?? collect();
+    $seoSetting = $seoSetting ?? null;
+
+    $section = fn (string $key) => $sections->get($key);
+    /** repeater rows for a given item type */
+    $placed  = fn (string $type) => $items->get($type, collect());
+
+    $heroProofs   = $placed('hero_proof');
+    $trustItems   = $placed('trust_item');
+    $advicePoints = $placed('advice_point');
+    $processSteps = $placed('process_step');
+    $faqs         = $placed('faq_item');
+
+    $heroS     = $section('hero');
+    $catS      = $section('categories');
+    $equipS    = $section('equipment');
+    $visitS    = $section('visit');
+    $adviceS   = $section('advice');
+    $processS  = $section('process');
+    $faqS      = $section('faq');
+    $contactS  = $section('contact');
+    $footerS   = $section('footer');
+    $generalS  = $section('general');
+    $benefitsS = $section('hero_benefits');
+    $trustS    = $section('trust');
+
+    /** preview mode renders the real page but neutralises outbound WhatsApp links */
+    $isPreview = request()->boolean('preview');
+
     $contactSetting = $contactSetting ?? null;
     $whatsappSource = $contactSetting?->whatsapp_number ?: $contactSetting?->phone;
-    $whatsappNumber = preg_replace('/\D+/', '', (string) $whatsappSource);
+    $whatsappNumber = $whatsappNumber ?? preg_replace('/\D+/', '', (string) $whatsappSource);
     $whatsappUrl = $whatsappNumber !== '' ? 'https://wa.me/'.$whatsappNumber : '#contact';
+
+    /** wa.me link carrying a prefilled message. */
+    $wa = function (?string $message) use ($whatsappNumber) {
+        if ($whatsappNumber === '') {
+            return '#contact';
+        }
+        return 'https://wa.me/'.$whatsappNumber.($message ? '?text='.rawurlencode($message) : '');
+    };
+
+    $metaDescription = $seoSetting?->meta_description
+        ?: 'mas Cool لمعدات التبريد الصناعي. معدات مستوردة ومعاينة قبل الشراء.';
+    $metaTitle = $seoSetting?->meta_title ?: 'mas Cool | معدات التبريد الصناعي';
+    $heroImage = HomeMedia::url($heroS?->image, '/mas-cool-assets/hero-compressor.png');
+    $visitImage = HomeMedia::url($visitS?->image, '/mas-cool-assets/fan-closeup.png');
+    $adviceImage = HomeMedia::url($adviceS?->image, '/mas-cool-assets/fan-closeup.png');
 @endphp
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="description" content="mas Cool لمعدات التبريد الصناعي. معدات مستوردة ومعاينة قبل الشراء.">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="description" content="{{ $metaDescription }}">
     <meta name="theme-color" content="#062b39">
-    <title>mas Cool | معدات التبريد الصناعي</title>
+    <title>{{ $metaTitle }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="preload" as="image" href="/mas-cool-assets/hero-compressor.png" fetchpriority="high">
+    <link rel="preload" as="image" href="{{ $heroImage }}" fetchpriority="high">
     <style>
         /* ============================================================
            1. DESIGN TOKENS
@@ -145,7 +196,7 @@
         .hero__proof-item{display:flex;align-items:center;gap:7px;color:#b9cbd2;font-size:12.5px}
         .hero__proof-item i{width:15px;height:15px;display:grid;place-items:center;border-radius:50%;background:rgba(212,248,63,.16);color:var(--lime);font-style:normal;font-weight:800;font-size:9px;flex:none}
         /* the photo already carries a dark navy backdrop — feather it into the hero instead of framing it */
-        .hero__visual{position:relative;aspect-ratio:16/11;max-height:430px;justify-self:stretch;background:url('/mas-cool-assets/hero-compressor.png') 34% center/cover no-repeat;mask-image:radial-gradient(ellipse 78% 86% at 42% 50%,#000 58%,transparent 100%)}
+        .hero__visual{position:relative;aspect-ratio:16/11;max-height:430px;justify-self:stretch;background:var(--hero-image) 34% center/cover no-repeat;mask-image:radial-gradient(ellipse 78% 86% at 42% 50%,#000 58%,transparent 100%)}
         .hero__frame{position:absolute;inset:6% 16% 6% 4%;border:1px solid rgba(212,248,63,.2);border-radius:var(--r-md);pointer-events:none}
         .hero__frame:before,.hero__frame:after{content:"";position:absolute;width:12px;height:12px;border:2px solid var(--lime);opacity:.65}
         .hero__frame:before{top:-1px;right:-1px;border-left:0;border-bottom:0;border-radius:0 3px 0 0}
@@ -224,7 +275,7 @@
            8. VISIT BANNER — one composition, gradient blend
            ============================================================ */
         .visit{position:relative;color:#fff;background:var(--navy-deep);overflow:hidden}
-        .visit__media{position:absolute;inset:0;background:url('/mas-cool-assets/fan-closeup.png') 20% 42%/cover no-repeat}
+        .visit__media{position:absolute;inset:0;background:var(--visit-image) 20% 42%/cover no-repeat}
         /* copy side stays fully dark, photo fades in across the middle */
         .visit__media:after{content:"";position:absolute;inset:0;background:linear-gradient(270deg,var(--navy-deep) 0%,var(--navy-deep) 40%,rgba(3,29,39,.82) 58%,rgba(3,29,39,.3) 84%,rgba(3,29,39,.18) 100%)}
         .visit__inner{position:relative;z-index:1;display:grid;grid-template-columns:58% 42%;padding:clamp(40px,4.4vw,56px) 0}
@@ -240,7 +291,7 @@
         .advice{background:var(--paper)}
         .advice__grid{display:grid;grid-template-columns:45fr 55fr;align-items:center;gap:clamp(28px,4vw,60px)}
         .advice__figure{position:relative;margin:0}
-        .advice__image{aspect-ratio:4/3.1;border-radius:var(--r-lg);background:url('/mas-cool-assets/fan-closeup.png') 34% center/cover no-repeat}
+        .advice__image{aspect-ratio:4/3.1;border-radius:var(--r-lg);background:var(--advice-image) 34% center/cover no-repeat}
         /* badge sits on the frame edge rather than pasted in the middle of the photo */
         .advice__caption{position:absolute;right:0;bottom:0;display:inline-flex;align-items:center;gap:8px;background:var(--lime);color:var(--navy);padding:10px 16px;border-radius:var(--r-md) 0 var(--r-lg) 0;font-weight:800;font-size:12px}
         .advice h2 span{color:var(--lime-deep)}
@@ -593,9 +644,15 @@
             html{scroll-behavior:auto}
             *,*:before,*:after{transition:none!important;animation:none!important}
         }
+
+        /* ---- editor preview mode only ---- */
+        body.is-preview [data-section]{position:relative;transition:box-shadow .2s ease}
+        body.is-preview [data-section].is-highlighted{box-shadow:inset 0 0 0 3px #d4f83f;border-radius:6px}
+        body.is-preview [data-section]{cursor:pointer}
+        body.is-preview .whatsapp-float{display:none}
     </style>
 </head>
-<body id="top">
+<body id="top" @class(['is-preview' => $isPreview]) style="--hero-image:url('{{ $heroImage }}');--visit-image:url('{{ $visitImage }}');--advice-image:url('{{ $adviceImage }}')">
 <div class="scroll-progress" aria-hidden="true"><span></span></div>
 <a class="skip-link" href="#main">تخطي إلى المحتوى</a>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
@@ -613,91 +670,102 @@
 <header class="header"><div class="header__inner">
     <a class="brand" href="#top" aria-label="mas Cool الرئيسية"><svg class="brand__mark" aria-hidden="true"><use href="#snow"/></svg><div><div class="brand__word">mas Cool</div><div class="brand__tag">معدات التبريد الصناعي</div></div></a>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="nav" aria-label="فتح القائمة">☰</button>
-    <nav class="nav" id="nav" aria-label="القائمة الرئيسية" aria-hidden="false" tabindex="-1"><div class="nav__head"><span class="nav__title">القائمة</span><button class="nav__close" type="button" aria-label="إغلاق القائمة">×</button></div><a class="active" href="#top">الرئيسية</a><a href="#equipment">المعدات</a><a href="#about">لماذا mas Cool</a><a href="#contact">تواصل معنا</a><a class="btn btn--dark nav__cta" href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" data-whatsapp-message="مرحبًا mas Cool، أرغب في طلب عرض سعر.">اطلب عرض سعر <span class="arrow" aria-hidden="true">←</span></a></nav>
-    <a class="btn btn--dark header__cta" href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" data-whatsapp-message="مرحبًا mas Cool، أرغب في طلب عرض سعر.">اطلب عرض سعر <span class="arrow" aria-hidden="true">←</span></a>
+    <nav class="nav" id="nav" aria-label="القائمة الرئيسية" aria-hidden="false" tabindex="-1"><div class="nav__head"><span class="nav__title">القائمة</span><button class="nav__close" type="button" aria-label="إغلاق القائمة">×</button></div><a class="active" href="#top">الرئيسية</a><a href="#equipment">المعدات</a><a href="#about">لماذا mas Cool</a><a href="#contact">تواصل معنا</a><a class="btn btn--dark nav__cta" href="{{ $wa($footerS?->whatsapp_message) }}" target="_blank" rel="noopener noreferrer" data-wa-source="mobile_cta" data-wa-action="quote" data-whatsapp-message="{{ $footerS?->whatsapp_message ?? 'مرحبًا mas Cool، أرغب في طلب عرض سعر.' }}">{{ $footerS?->setting('header_cta_text') ?? 'اطلب عرض سعر' }} <span class="arrow" aria-hidden="true">←</span></a></nav>
+    <a class="btn btn--dark header__cta" href="{{ $wa($footerS?->whatsapp_message) }}" target="_blank" rel="noopener noreferrer" data-wa-source="header_cta" data-wa-action="quote" data-whatsapp-message="{{ $footerS?->whatsapp_message ?? 'مرحبًا mas Cool، أرغب في طلب عرض سعر.' }}">{{ $footerS?->setting('header_cta_text') ?? 'اطلب عرض سعر' }} <span class="arrow" aria-hidden="true">←</span></a>
 </div></header>
 
 <main id="main">
-<section class="hero" aria-labelledby="hero-title">
+<section class="hero" aria-labelledby="hero-title" data-section="hero">
     <div class="container hero__grid">
-        <div class="hero__copy"><p class="eyebrow">mas Cool · معدات التبريد الصناعي</p><h1 id="hero-title">قوة التبريد.<span>ثقة الاختيار.</span></h1><p class="hero__lead">معدات تبريد مستوردة، تعاينها وتختبرها قبل الشراء. اختر المعدة المناسبة وراجع تفاصيلها قبل القرار.</p><div class="hero__actions"><a class="btn btn--lime" href="#equipment">استكشف المعدات <span class="arrow" aria-hidden="true">←</span></a><a class="btn btn--outline" href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" data-whatsapp-message="مرحبًا mas Cool، أرغب في حجز موعد لمعاينة معدات التبريد.">احجز معاينة</a></div><div class="hero__proof" aria-label="مزايا سريعة"><span class="hero__proof-item"><i aria-hidden="true">✓</i> فحص قبل الشراء</span><span class="hero__proof-item"><i aria-hidden="true">✓</i> اختيارات متعددة</span><span class="hero__proof-item"><i aria-hidden="true">✓</i> دعم فني متخصص</span></div></div>
-        <div class="hero__visual" role="img" aria-label="كباس تبريد صناعي أخضر على خلفية رسم هندسي"><span class="hero__frame" aria-hidden="true"></span><span class="hero__tag">جاهز للمعاينة</span><span class="hero__badge"><i aria-hidden="true"></i> معاينة واختبار قبل الشراء</span></div>
+        <div class="hero__copy"><p class="eyebrow">{{ $heroS?->eyebrow }}</p><h1 id="hero-title">{{ $heroS?->title }}<span>{{ $heroS?->highlighted_text }}</span></h1><p class="hero__lead">{{ $heroS?->description }}</p><div class="hero__actions"><a class="btn btn--lime" href="{{ $heroS?->setting('primary_button_href', '#equipment') }}">{{ $heroS?->button_text }} <span class="arrow" aria-hidden="true">←</span></a><a class="btn btn--outline" href="{{ $wa($heroS?->secondary_whatsapp_message) }}" target="_blank" rel="noopener noreferrer" data-wa-source="hero_booking" data-wa-action="booking" data-whatsapp-message="{{ $heroS?->secondary_whatsapp_message }}">{{ $heroS?->secondary_button_text }}</a></div>@if(($benefitsS?->is_active ?? true) && $heroProofs->isNotEmpty())<div class="hero__proof" aria-label="مزايا سريعة" data-section="hero_benefits">@foreach($heroProofs as $proof)<span class="hero__proof-item"><i aria-hidden="true">✓</i> {{ $proof->title }}</span>@endforeach</div>@endif</div>
+        <div class="hero__visual" role="img" aria-label="{{ $heroS?->image_alt }}"><span class="hero__frame" aria-hidden="true"></span><span class="hero__tag">{{ $heroS?->setting('tag') }}</span><span class="hero__badge"><i aria-hidden="true"></i> {{ $heroS?->setting('badge') }}</span></div>
     </div>
-    <div class="hero__trust" aria-label="مميزات الخدمة"><div class="container hero__trust-grid">
-        <div class="trust__item"><svg class="icon" aria-hidden="true"><use href="#globe"/></svg><div><strong>معدات مستوردة</strong><p>من أفضل العلامات العالمية</p></div></div>
-        <div class="trust__item"><svg class="icon" aria-hidden="true"><use href="#warehouse"/></svg><div><strong>معاينة بالمخزن</strong><p>تعاين وتختبر قبل الشراء</p></div></div>
-        <div class="trust__item"><svg class="icon" aria-hidden="true"><use href="#support"/></svg><div><strong>مساعدة في الاختيار</strong><p>فريق متخصص يساعدك</p></div></div>
+    @if(($trustS?->is_active ?? true) && $trustItems->isNotEmpty())
+    <div class="hero__trust" aria-label="مميزات الخدمة" data-section="trust"><div class="container hero__trust-grid">
+        @foreach($trustItems as $trust)
+        <div class="trust__item"><svg class="icon" aria-hidden="true"><use href="#{{ $trust->icon_key ?: 'check' }}"/></svg><div><strong>{{ $trust->title }}</strong><p>{{ $trust->description }}</p></div></div>
+        @endforeach
     </div></div>
+    @endif
 </section>
 
-<section class="section section--compact categories-section" aria-labelledby="categories-title"><div class="container">
-    <div class="section-head"><div class="section-head__text"><p class="eyebrow-label">01 / تصفح حسب النوع</p><h2 class="section-title" id="categories-title">كل ما يحتاجه نظام التبريد</h2><p class="section-desc">مجموعة متكاملة من معدات التبريد الصناعي بمواصفات عالمية.</p></div></div>
+@if($catS?->is_active ?? true)
+<section class="section section--compact categories-section" aria-labelledby="categories-title" data-section="categories"><div class="container">
+    <div class="section-head"><div class="section-head__text"><p class="eyebrow-label">{{ $catS?->eyebrow }}</p><h2 class="section-title" id="categories-title">{{ $catS?->title }}</h2><p class="section-desc">{{ $catS?->description }}</p></div></div>
     <div class="categories">
-        <button class="category-card" type="button" data-category="compressors"><span class="media media--sq"><img src="/mas-cool-assets/compressor-green.png" width="1672" height="941" loading="lazy" decoding="async" alt="كباس تبريد نصف مغلق باللون الأخضر"></span><span class="category-card__body"><span class="cat-text"><span class="cat-title">كباسات</span><span class="cat-sub">كباسات نصف مغلقة</span></span><span class="round-arrow" aria-hidden="true">←</span></span></button>
-        <button class="category-card" type="button" data-category="coils"><span class="media media--wide"><img src="/mas-cool-assets/coil-white.png" width="1672" height="941" loading="lazy" decoding="async" alt="كويل تبريد أبيض بمروحتين"></span><span class="category-card__body"><span class="cat-text"><span class="cat-title">كويلات</span><span class="cat-sub">كويلات تبريد وتجميد</span></span><span class="round-arrow" aria-hidden="true">←</span></span></button>
-        <button class="category-card" type="button" data-category="units"><span class="media media--wide"><img src="/mas-cool-assets/condensing-unit-green.png" width="1672" height="941" loading="lazy" decoding="async" alt="وحدة تكثيف خضراء متكاملة"></span><span class="category-card__body"><span class="cat-text"><span class="cat-title">وحدات تبريد</span><span class="cat-sub">وحدات متكاملة وجاهزة</span></span><span class="round-arrow" aria-hidden="true">←</span></span></button>
-        <button class="category-card" type="button" data-category="condensers"><span class="media media--wide"><img src="/mas-cool-assets/condenser-blue.png" width="1672" height="941" loading="lazy" decoding="async" alt="كوندنسر هواء أزرق بمروحتين"></span><span class="category-card__body"><span class="cat-text"><span class="cat-title">كوندنسرات</span><span class="cat-sub">مكثفات هواء عالية الكفاءة</span></span><span class="round-arrow" aria-hidden="true">←</span></span></button>
+        @foreach($categories as $category)
+        <button class="category-card" type="button" data-category="{{ $category->slug }}"><span class="media media--{{ $category->media_shape }}"><img src="{{ HomeMedia::url($category->image) }}" width="1672" height="941" loading="lazy" decoding="async" alt="{{ $category->image_alt ?: $category->name }}"></span><span class="category-card__body"><span class="cat-text"><span class="cat-title">{{ $category->name }}</span><span class="cat-sub">{{ $category->short_description }}</span></span><span class="round-arrow" aria-hidden="true">←</span></span></button>
+        @endforeach
     </div>
 </div></section>
+@endif
 
-<section class="section equipment" id="equipment" aria-labelledby="equipment-title"><div class="container">
+@if($equipS?->is_active ?? true)
+<section class="section equipment" id="equipment" aria-labelledby="equipment-title" data-section="equipment"><div class="container">
     <div class="equipment__panel">
-        <div class="section-head"><div class="section-head__text"><p class="eyebrow-label">02 / معدات مختارة</p><h2 class="section-title" id="equipment-title">معدات تستحق نظرة أقرب</h2><p class="section-desc">معدات مختارة بعناية من أفضل العلامات، راجع مواصفاتها قبل الزيارة.</p></div><a class="btn btn--outline" href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" data-whatsapp-message="مرحبًا mas Cool، أبحث عن معدة محددة وأحتاج مساعدة في الاختيار.">اسأل عن معدة محددة <span class="arrow" aria-hidden="true">←</span></a></div>
-        <div class="equipment__toolbar"><div class="filters-wrap"><div class="filters" role="group" aria-label="تصفية المعدات"><button class="filter" data-filter="all" aria-pressed="true">الكل</button><button class="filter" data-filter="compressors" aria-pressed="false">كباسات</button><button class="filter" data-filter="coils" aria-pressed="false">كويلات</button><button class="filter" data-filter="units" aria-pressed="false">وحدات تبريد</button><button class="filter" data-filter="condensers" aria-pressed="false">كوندنسرات</button></div></div><span class="results" id="results" role="status"></span></div>
+        <div class="section-head"><div class="section-head__text"><p class="eyebrow-label">{{ $equipS?->eyebrow }}</p><h2 class="section-title" id="equipment-title">{{ $equipS?->title }}</h2><p class="section-desc">{{ $equipS?->description }}</p></div><a class="btn btn--outline" href="{{ $wa($equipS?->whatsapp_message) }}" target="_blank" rel="noopener noreferrer" data-wa-source="equipment_help" data-wa-action="help" data-whatsapp-message="{{ $equipS?->whatsapp_message }}">{{ $equipS?->button_text }} <span class="arrow" aria-hidden="true">←</span></a></div>
+        <div class="equipment__toolbar"><div class="filters-wrap"><div class="filters" role="group" aria-label="تصفية المعدات"><button class="filter" data-filter="all" aria-pressed="true">{{ $equipS?->setting('filter_all_label', 'الكل') }}</button>@foreach($categories as $category)<button class="filter" data-filter="{{ $category->slug }}" aria-pressed="false">{{ $category->name }}</button>@endforeach</div></div><span class="results" id="results" role="status"></span></div>
     </div>
     <div class="products">
-        <article class="product" data-type="condensers"><span class="product__flag">متاح للمعاينة</span><div class="media media--wide"><img src="/mas-cool-assets/condenser-blue.png" width="1672" height="941" loading="lazy" decoding="async" alt="كوندنسر هواء صناعي أزرق بمروحتين"></div><div class="product__body"><span class="product__kicker">مكثفات هوائية</span><h3>كوندنسر هواء</h3><p class="product__desc">مكثف هواء صناعي بمواصفات عالية وتبريد ثابت.</p><div class="product__actions"><button class="btn btn--dark btn--sm" type="button" data-inquire="كوندنسر هواء" data-value="condensers">استفسر عن السعر <span class="arrow" aria-hidden="true">←</span></button><button class="btn btn--ghost btn--sm" type="button">التفاصيل<span class="visually-hidden"> — كوندنسر هواء</span></button><button class="btn btn--ghost btn--sm" type="button">المواصفات<span class="visually-hidden"> — كوندنسر هواء</span></button></div></div></article>
-        <article class="product" data-type="coils"><span class="product__flag">متاح للمعاينة</span><div class="media media--wide"><img src="/mas-cool-assets/coil-white.png" width="1672" height="941" loading="lazy" decoding="async" alt="كويل تبريد أبيض بمروحتين"></div><div class="product__body"><span class="product__kicker">تبريد وتجميد</span><h3>كويل تبريد</h3><p class="product__desc">كويل هواء للتبريد والتجميد بمقاسات وقدرات متعددة.</p><div class="product__actions"><button class="btn btn--dark btn--sm" type="button" data-inquire="كويل تبريد" data-value="coils">استفسر عن السعر <span class="arrow" aria-hidden="true">←</span></button><button class="btn btn--ghost btn--sm" type="button">التفاصيل<span class="visually-hidden"> — كويل تبريد</span></button><button class="btn btn--ghost btn--sm" type="button">المواصفات<span class="visually-hidden"> — كويل تبريد</span></button></div></div></article>
-        <article class="product" data-type="compressors"><span class="product__flag">متاح للمعاينة</span><div class="media media--sq"><img src="/mas-cool-assets/compressor-green.png" width="1672" height="941" loading="lazy" decoding="async" alt="كباس تبريد نصف مغلق أخضر"></div><div class="product__body"><span class="product__kicker">كباسات تبريد</span><h3>كباس نصف مغلق</h3><p class="product__desc">كباس صناعي عالي الكفاءة، اسأل عن القدرة والحالة.</p><div class="product__actions"><button class="btn btn--dark btn--sm" type="button" data-inquire="كباس نصف مغلق" data-value="compressors">استفسر عن السعر <span class="arrow" aria-hidden="true">←</span></button><button class="btn btn--ghost btn--sm" type="button">التفاصيل<span class="visually-hidden"> — كباس نصف مغلق</span></button><button class="btn btn--ghost btn--sm" type="button">المواصفات<span class="visually-hidden"> — كباس نصف مغلق</span></button></div></div></article>
-        <article class="product" data-type="units"><span class="product__flag">متاح للمعاينة</span><div class="media media--wide"><img src="/mas-cool-assets/condensing-unit-green.png" width="1672" height="941" loading="lazy" decoding="async" alt="وحدة تكثيف خضراء متكاملة"></div><div class="product__body"><span class="product__kicker">وحدات تبريد</span><h3>وحدة تكثيف</h3><p class="product__desc">وحدة تكثيف متكاملة وجاهزة لمتطلبات المشروع.</p><div class="product__actions"><button class="btn btn--dark btn--sm" type="button" data-inquire="وحدة تكثيف" data-value="units">استفسر عن السعر <span class="arrow" aria-hidden="true">←</span></button><button class="btn btn--ghost btn--sm" type="button">التفاصيل<span class="visually-hidden"> — وحدة تكثيف</span></button><button class="btn btn--ghost btn--sm" type="button">المواصفات<span class="visually-hidden"> — وحدة تكثيف</span></button></div></div></article>
-        <article class="product" data-type="coils"><span class="product__flag">متاح للمعاينة</span><div class="media media--xwide"><img src="/mas-cool-assets/coil-four-fan.png" width="2159" height="728" loading="lazy" decoding="async" alt="كويل تجميد صناعي بأربع مراوح"></div><div class="product__body"><span class="product__kicker">كويلات متعددة المراوح</span><h3>كويل تجميد</h3><p class="product__desc">كويل تجميد صناعي بأربع مراوح وقدرة تشغيل عالية.</p><div class="product__actions"><button class="btn btn--dark btn--sm" type="button" data-inquire="كويل تجميد" data-value="coils">استفسر عن السعر <span class="arrow" aria-hidden="true">←</span></button><button class="btn btn--ghost btn--sm" type="button">التفاصيل<span class="visually-hidden"> — كويل تجميد</span></button><button class="btn btn--ghost btn--sm" type="button">المواصفات<span class="visually-hidden"> — كويل تجميد</span></button></div></div></article>
-        <article class="product" data-type="compressors"><span class="product__flag">متاح للمعاينة</span><div class="media media--sq"><img src="/mas-cool-assets/compressor-blue.png" width="1672" height="941" loading="lazy" decoding="async" alt="كباس تبريد صناعي أزرق"></div><div class="product__body"><span class="product__kicker">كباسات صناعية</span><h3>كباس تبريد</h3><p class="product__desc">كباس متعدد الاستخدامات، راجع الموديل والتوافر.</p><div class="product__actions"><button class="btn btn--dark btn--sm" type="button" data-inquire="كباس تبريد" data-value="compressors">استفسر عن السعر <span class="arrow" aria-hidden="true">←</span></button><button class="btn btn--ghost btn--sm" type="button">التفاصيل<span class="visually-hidden"> — كباس تبريد</span></button><button class="btn btn--ghost btn--sm" type="button">المواصفات<span class="visually-hidden"> — كباس تبريد</span></button></div></div></article>
+        @foreach($products as $product)
+        <article class="product" data-type="{{ $product->category?->slug }}">@if($product->is_available && $product->availability_label)<span class="product__flag">{{ $product->availability_label }}</span>@endif<div class="media media--{{ $product->mediaShapeClass() }}"><img src="{{ HomeMedia::url($product->image) }}" width="{{ $product->media_shape === 'xwide' ? 2159 : 1672 }}" height="{{ $product->media_shape === 'xwide' ? 728 : 941 }}" loading="lazy" decoding="async" alt="{{ $product->image_alt ?: $product->name }}"></div><div class="product__body"><span class="product__kicker">{{ $product->kicker }}</span><h3>{{ $product->name }}</h3><p class="product__desc">{{ $product->description }}</p><div class="product__actions"><button class="btn btn--dark btn--sm" type="button" data-inquire="{{ $product->name }}" data-value="{{ $product->category?->slug }}" data-wa-source="product_price" data-wa-action="quote" data-product-id="{{ $product->id }}" data-whatsapp-message="{{ $product->whatsapp_price_message }}">استفسر عن السعر <span class="arrow" aria-hidden="true">←</span></button><button class="btn btn--ghost btn--sm" type="button" data-wa-source="product_details" data-wa-action="details" data-product-id="{{ $product->id }}" data-whatsapp-message="{{ $product->whatsapp_details_message }}">التفاصيل<span class="visually-hidden"> — {{ $product->name }}</span></button><button class="btn btn--ghost btn--sm" type="button" data-wa-source="product_specs" data-wa-action="specs" data-product-id="{{ $product->id }}" data-whatsapp-message="{{ $product->whatsapp_specs_message }}">المواصفات<span class="visually-hidden"> — {{ $product->name }}</span></button></div></div></article>
+        @endforeach
     </div>
-    <div class="products-more"><a class="btn btn--outline" href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" data-whatsapp-message="مرحبًا mas Cool، أريد معرفة المعدات المتاحة حاليًا.">استعرض جميع المعدات ⊞</a></div>
+    <div class="products-more"><a class="btn btn--outline" href="{{ $wa($equipS?->secondary_whatsapp_message) }}" target="_blank" rel="noopener noreferrer" data-wa-source="equipment_help" data-wa-action="help" data-whatsapp-message="{{ $equipS?->secondary_whatsapp_message }}">{{ $equipS?->secondary_button_text }}</a></div>
 </div></section>
+@endif
 
-<section class="visit" aria-labelledby="visit-title">
-    <div class="visit__media" role="img" aria-label="مراوح تبريد صناعية"></div>
-    <div class="container visit__inner"><div class="visit__copy"><h2 id="visit-title">شوف المعدة. جرّبها. <span>وقرر بثقة.</span></h2><p>تواصل معنا لتنسيق زيارتك ومعاينة المعدات.</p><a class="btn btn--lime" href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" data-whatsapp-message="مرحبًا mas Cool، أريد حجز موعد للزيارة ومعاينة المعدات.">احجز زيارتك الآن <span class="arrow" aria-hidden="true">←</span></a><span class="visit__note"><i aria-hidden="true"></i> معاينة واختبار بالمخزن مع استشارة فنية</span></div></div>
+@if($visitS?->is_active ?? true)
+<section class="visit" aria-labelledby="visit-title" data-section="visit">
+    <div class="visit__media" role="img" aria-label="{{ $visitS?->image_alt }}"></div>
+    <div class="container visit__inner"><div class="visit__copy"><h2 id="visit-title">{{ $visitS?->title }} <span>{{ $visitS?->highlighted_text }}</span></h2><p>{{ $visitS?->description }}</p><a class="btn btn--lime" href="{{ $wa($visitS?->whatsapp_message) }}" target="_blank" rel="noopener noreferrer" data-wa-source="visit_booking" data-wa-action="booking" data-whatsapp-message="{{ $visitS?->whatsapp_message }}">{{ $visitS?->button_text }} <span class="arrow" aria-hidden="true">←</span></a><span class="visit__note"><i aria-hidden="true"></i> {{ $visitS?->setting('note') }}</span></div></div>
 </section>
+@endif
 
-<section class="section advice" id="about" aria-labelledby="advice-title"><div class="container advice__grid">
-    <figure class="advice__figure"><div class="advice__image" role="img" aria-label="مروحة تبريد صناعية عن قرب"></div><figcaption class="advice__caption">خبرة فنية • اختيار أدق</figcaption></figure>
-    <div><p class="eyebrow-label">03 / اختيار مدروس</p><h2 class="section-title" id="advice-title">اختيار المعدة يبدأ بفهم <span>احتياجك</span></h2><p class="advice__lead">شاركنا نوع الاستخدام والمواصفات المطلوبة؛ لنساعدك في اختيار المعدة المناسبة.</p>
+@if($adviceS?->is_active ?? true)
+<section class="section advice" id="about" aria-labelledby="advice-title" data-section="advice"><div class="container advice__grid">
+    <figure class="advice__figure"><div class="advice__image" role="img" aria-label="{{ $adviceS?->image_alt }}"></div><figcaption class="advice__caption">{{ $adviceS?->setting('caption') }}</figcaption></figure>
+    <div><p class="eyebrow-label">{{ $adviceS?->eyebrow }}</p><h2 class="section-title" id="advice-title">{{ $adviceS?->title }} <span>{{ $adviceS?->highlighted_text }}</span></h2><p class="advice__lead">{{ $adviceS?->description }}</p>
     <div class="advice-list">
-        <div class="advice-point"><span class="advice-point__num" aria-hidden="true">01</span><div><h3>نوع الاستخدام</h3><p>تحديد طبيعة التطبيق وبيئة التشغيل المناسبة.</p></div></div>
-        <div class="advice-point"><span class="advice-point__num" aria-hidden="true">02</span><div><h3>القدرة المطلوبة</h3><p>اختيار السعة والقدرة المتوافقة مع احتياج مشروعك.</p></div></div>
-        <div class="advice-point"><span class="advice-point__num" aria-hidden="true">03</span><div><h3>ظروف التشغيل</h3><p>مراعاة درجات الحرارة والظروف البيئية لأفضل أداء.</p></div></div>
+        @foreach($advicePoints as $point)
+        <div class="advice-point"><span class="advice-point__num" aria-hidden="true">{{ $point->label ?: str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span><div><h3>{{ $point->title }}</h3><p>{{ $point->description }}</p></div></div>
+        @endforeach
     </div>
     </div>
 </div></section>
+@endif
 
-<section class="section section--compact process" aria-labelledby="process-title"><div class="container"><div class="process__head"><p class="eyebrow-label">04 / خطوات واضحة</p><h2 class="section-title" id="process-title">من أول استفسار لحد المعاينة</h2><p class="section-desc">خطوات بسيطة تضمن لك اختيار المعدة المناسبة.</p></div><div class="steps">
-    <div class="step"><span class="step__number">01</span><div class="step__body"><span class="step__icon"><svg class="icon" aria-hidden="true"><use href="#note"/></svg></span><h3>حدد احتياجك</h3><p>اخبرنا بنوع الاستخدام والمواصفات التي تبحث عنها.</p></div></div>
-    <div class="step"><span class="step__number">02</span><div class="step__body"><span class="step__icon"><svg class="icon" aria-hidden="true"><use href="#search"/></svg></span><h3>راجع التفاصيل</h3><p>استفسر عن الموديل والقدرة والحالة والتوافر والسعر.</p></div></div>
-    <div class="step step--final"><span class="step__number">03</span><div class="step__body"><span class="step__icon"><svg class="icon" aria-hidden="true"><use href="#calendar"/></svg></span><h3>احجز المعاينة</h3><p>نسّق موعدًا لمعاينة المعدة والتأكد من ملاءمتها.</p></div></div>
+@if($processS?->is_active ?? true)
+<section class="section section--compact process" aria-labelledby="process-title" data-section="process"><div class="container"><div class="process__head"><p class="eyebrow-label">{{ $processS?->eyebrow }}</p><h2 class="section-title" id="process-title">{{ $processS?->title }}</h2><p class="section-desc">{{ $processS?->description }}</p></div><div class="steps">
+    @foreach($processSteps as $step)
+    <div class="step{{ $step->isFinal() ? ' step--final' : '' }}"><span class="step__number">{{ $step->label ?: str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span><div class="step__body"><span class="step__icon"><svg class="icon" aria-hidden="true"><use href="#{{ $step->icon_key ?: 'note' }}"/></svg></span><h3>{{ $step->title }}</h3><p>{{ $step->description }}</p></div></div>
+    @endforeach
 </div></div></section>
+@endif
 
-<section class="section section--compact faq" aria-labelledby="faq-title"><div class="container faq__grid"><div class="faq__intro"><p class="eyebrow-label">05 / نجاوب على أسئلتك</p><h2 id="faq-title">أسئلة قبل الشراء</h2><p>إجابات واضحة تساعدك في اتخاذ القرار المناسب.</p></div><div class="faq__list">
-    <details open><summary>هل يمكن معاينة المعدة قبل الشراء؟</summary><div class="faq__answer"><p>يمكن التواصل معنا لتنسيق موعد المعاينة والاطلاع على تفاصيل المعدة وإجراءات الاختبار المتاحة.</p></div></details>
-    <details><summary>كيف أختار القدرة المناسبة؟</summary><div class="faq__answer"><p>شارك معنا نوع الاستخدام وحجم المساحة ودرجة الحرارة المطلوبة، وسنراجع المتطلبات الفنية معك.</p></div></details>
-    <details><summary>كيف أطلب عرض سعر؟</summary><div class="faq__answer"><p>اختر «استفسر عن السعر» أسفل المعدة أو املأ النموذج التالي بتفاصيل احتياجك.</p></div></details>
-    <details><summary>كيف أتأكد من توافر المعدة؟</summary><div class="faq__answer"><p>التوافر يتغير؛ تواصل معنا لتأكيد الموديل والحالة والكمية المتاحة قبل الزيارة.</p></div></details>
+@if($faqS?->is_active ?? true)
+<section class="section section--compact faq" aria-labelledby="faq-title" data-section="faq"><div class="container faq__grid"><div class="faq__intro"><p class="eyebrow-label">{{ $faqS?->eyebrow }}</p><h2 id="faq-title">{{ $faqS?->title }}</h2><p>{{ $faqS?->description }}</p></div><div class="faq__list">
+    @foreach($faqs as $faq)
+    <details @if($loop->first) open @endif><summary>{{ $faq->title }}</summary><div class="faq__answer"><p>{{ $faq->description }}</p></div></details>
+    @endforeach
 </div></div></section>
+@endif
 
-<section class="section contact" id="contact" aria-labelledby="contact-title"><div class="container contact__grid"><div class="contact__copy"><p class="eyebrow">الخطوة القادمة تبدأ هنا</p><h2 id="contact-title">جاهز نختار المعدة <span>المناسبة؟</span></h2><p>اترك تفاصيل احتياجك وسنتواصل معك.</p></div><form class="form" id="inquiry" novalidate><div class="form__grid">
+@if($contactS?->is_active ?? true)
+<section class="section contact" id="contact" aria-labelledby="contact-title" data-section="contact"><div class="container contact__grid"><div class="contact__copy"><p class="eyebrow">{{ $contactS?->eyebrow }}</p><h2 id="contact-title">{{ $contactS?->title }} <span>{{ $contactS?->highlighted_text }}</span></h2><p>{{ $contactS?->description }}</p></div><form class="form" id="inquiry" novalidate><div class="form__grid">
     <div class="field"><label for="name">الاسم</label><input id="name" name="name" autocomplete="name" placeholder="الاسم بالكامل" required maxlength="100"></div>
     <div class="field"><label for="phone">رقم الهاتف</label><input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="رقم الهاتف" required maxlength="25"></div>
-    <div class="field"><label for="type">نوع المعدة</label><select id="type" name="type" required><option value="">اختر نوع المعدة</option><option value="compressors">كباسات</option><option value="coils">كويلات</option><option value="units">وحدات تبريد</option><option value="condensers">كوندنسرات</option><option value="other">أحتاج مساعدة في الاختيار</option></select></div>
+    <div class="field"><label for="type">نوع المعدة</label><select id="type" name="type" required><option value="">اختر نوع المعدة</option>@foreach($categories as $category)<option value="{{ $category->slug }}">{{ $category->name }}</option>@endforeach<option value="other">{{ $contactS?->setting('other_option_label', 'أحتاج مساعدة في الاختيار') }}</option></select></div>
     <div class="field"><label for="message">تفاصيل الطلب</label><textarea id="message" name="message" placeholder="اكتب تفاصيل احتياجك هنا..." required maxlength="1500"></textarea></div>
-    </div><button class="btn btn--lime" type="submit">إرسال عبر واتساب <span class="arrow" aria-hidden="true">◁</span></button><p class="form__note">سيُفتح واتساب برسالة جاهزة، ولن تُرسل إلا بعد تأكيدك داخل المحادثة.</p></form>
+    </div><button class="btn btn--lime" type="submit">{{ $contactS?->button_text }} <span class="arrow" aria-hidden="true">◁</span></button><p class="form__note">{{ $contactS?->setting('form_note') }}</p></form>
 </div></section>
+@endif
 </main>
 
-<footer class="footer"><div class="container"><div class="footer__grid"><div class="footer__brand"><a class="brand" href="#top"><svg class="brand__mark" aria-hidden="true"><use href="#snow"/></svg><div><div class="brand__word">mas Cool</div><div class="brand__tag">معدات التبريد الصناعي</div></div></a></div><div class="footer__links"><h3 class="footer__title">روابط سريعة</h3><a href="#top">الرئيسية</a><a href="#equipment">المعدات</a><a href="#about">لماذا mas Cool</a><a href="#contact">تواصل معنا</a></div><div class="footer__links"><h3 class="footer__title">المعدات</h3><a href="#equipment">كباسات</a><a href="#equipment">كويلات تبريد</a><a href="#equipment">وحدات تكثيف</a><a href="#equipment">كوندنسرات</a></div><div class="footer__links footer__start"><h3 class="footer__title">ابدأ معنا</h3><div class="footer__links-row"><a href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" data-whatsapp-message="مرحبًا mas Cool، أرغب في طلب عرض سعر.">اطلب عرض سعر ←</a><a href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" data-whatsapp-message="مرحبًا mas Cool، أريد تنسيق موعد للمعاينة.">نسّق موعد المعاينة</a></div></div></div><div class="footer__bottom"><span>© <span id="year"></span> mas Cool — جميع الحقوق محفوظة.</span><a href="#top">العودة للأعلى ↑</a></div></div></footer>
+<footer class="footer" data-section="footer"><div class="container"><div class="footer__grid"><div class="footer__brand"><a class="brand" href="#top"><svg class="brand__mark" aria-hidden="true"><use href="#snow"/></svg><div><div class="brand__word">mas Cool</div><div class="brand__tag">معدات التبريد الصناعي</div></div></a></div><div class="footer__links"><h3 class="footer__title">{{ $footerS?->setting('quick_links_title', 'روابط سريعة') }}</h3><a href="#top">الرئيسية</a><a href="#equipment">المعدات</a><a href="#about">لماذا mas Cool</a><a href="#contact">تواصل معنا</a></div><div class="footer__links"><h3 class="footer__title">{{ $footerS?->setting('equipment_title', 'المعدات') }}</h3>@foreach($footerS?->setting('equipment_links') ?? $categories->pluck('name')->all() as $link)<a href="#equipment">{{ $link }}</a>@endforeach</div><div class="footer__links footer__start"><h3 class="footer__title">{{ $footerS?->setting('start_title', 'ابدأ معنا') }}</h3><div class="footer__links-row"><a href="{{ $wa($footerS?->whatsapp_message) }}" target="_blank" rel="noopener noreferrer" data-wa-source="footer_quote" data-wa-action="quote" data-whatsapp-message="{{ $footerS?->whatsapp_message }}">{{ $footerS?->button_text }}</a><a href="{{ $wa($footerS?->secondary_whatsapp_message) }}" target="_blank" rel="noopener noreferrer" data-wa-source="footer_quote" data-wa-action="booking" data-whatsapp-message="{{ $footerS?->secondary_whatsapp_message }}">{{ $footerS?->secondary_button_text }}</a></div></div></div><div class="footer__bottom"><span>© <span id="year"></span> {{ $footerS?->setting('copyright', 'mas Cool — جميع الحقوق محفوظة.') }}</span><a href="#top">العودة للأعلى ↑</a></div></div></footer>
 
 @if($whatsappNumber !== '')
-<a class="whatsapp-float" href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" data-whatsapp-message="مرحبًا mas Cool، أريد الاستفسار عن معدات التبريد." aria-label="تواصل معنا عبر واتساب">
+<a class="whatsapp-float" href="{{ $wa($footerS?->setting('floating_message')) }}" target="_blank" rel="noopener noreferrer" data-wa-source="floating_button" data-wa-action="contact" data-whatsapp-message="{{ $footerS?->setting('floating_message', 'مرحبًا mas Cool، أريد الاستفسار عن معدات التبريد.') }}" aria-label="تواصل معنا عبر واتساب">
     <span class="whatsapp-float__label">تواصل معنا عبر واتساب</span>
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.297.3-.495.099-.198.05-.372-.025-.521-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.009-.371-.011-.57-.011-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479s1.065 2.875 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.262.489 1.694.626.712.227 1.36.195 1.871.118.57-.085 1.758-.719 2.006-1.413.248-.694.248-1.29.173-1.414-.074-.123-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.99c-.002 5.45-4.437 9.884-9.889 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
 </a>
@@ -784,6 +852,18 @@ updateFilterCue();}
 filters.forEach(btn=>btn.addEventListener('click',()=>applyFilter(btn.dataset.filter)));
 document.querySelectorAll('[data-category]').forEach(btn=>btn.addEventListener('click',()=>{applyFilter(btn.dataset.category);document.querySelector('#equipment').scrollIntoView({block:'start'});}));
 const whatsappNumber=@json($whatsappNumber);
+const waTrackUrl=@json(route('whatsapp.track'));
+const waToken=document.querySelector('meta[name="csrf-token"]')?.content||'';
+/* Fire-and-forget analytics. Never delays or blocks the WhatsApp hand-off. */
+function trackWhatsApp(source,action,productId){
+    if(!source||!waTrackUrl)return;
+    const payload=JSON.stringify({source:source,action_type:action||null,equipment_product_id:productId?Number(productId):null});
+    try{
+        const blob=new Blob([payload],{type:'application/json'});
+        if(navigator.sendBeacon&&navigator.sendBeacon(waTrackUrl+'?_token='+encodeURIComponent(waToken),blob))return;
+        fetch(waTrackUrl,{method:'POST',keepalive:true,headers:{'Content-Type':'application/json','X-CSRF-TOKEN':waToken},body:payload}).catch(()=>{});
+    }catch(_){/* analytics must never break the CTA */}
+}
 function openWhatsApp(message){
     if(!whatsappNumber){
         alert('رقم واتساب غير مُعدّ حاليًا. يرجى إضافته من لوحة التحكم.');
@@ -795,22 +875,13 @@ function openWhatsApp(message){
     else window.location.href=url;
 }
 document.addEventListener('click',e=>{
-    const trigger=e.target.closest('[data-whatsapp-message],.product__actions button');
+    const trigger=e.target.closest('[data-whatsapp-message]');
     if(!trigger)return;
     e.preventDefault();
-    let message=trigger.dataset.whatsappMessage;
-    const product=trigger.closest('.product');
-    if(product){
-        const productName=product.querySelector('h3')?.textContent.trim()||'المعدة';
-        const action=trigger.matches('.btn--dark')?'price':trigger.textContent.trim().startsWith('التفاصيل')?'details':'specs';
-        const messages={
-            price:`مرحبًا mas Cool، أريد الاستفسار عن سعر وتوافر ${productName}.`,
-            details:`مرحبًا mas Cool، أريد معرفة تفاصيل ${productName}.`,
-            specs:`مرحبًا mas Cool، أريد معرفة مواصفات ${productName}.`
-        };
-        message=messages[action];
-    }
-    openWhatsApp(message||'مرحبًا mas Cool، أريد الاستفسار عن معدات التبريد.');
+    /* the message is authored in the dashboard; never rebuilt here */
+    const message=trigger.dataset.whatsappMessage||'مرحبًا mas Cool، أريد الاستفسار عن معدات التبريد.';
+    trackWhatsApp(trigger.dataset.waSource,trigger.dataset.waAction,trigger.dataset.productId);
+    openWhatsApp(message);
 });
 document.querySelector('#inquiry').addEventListener('submit',e=>{
     e.preventDefault();
@@ -818,6 +889,7 @@ document.querySelector('#inquiry').addEventListener('submit',e=>{
     if(!form.checkValidity()){form.reportValidity();return;}
     const data=new FormData(form);
     const select=document.querySelector('#type');
+    trackWhatsApp('inquiry_form','inquiry',null);
     openWhatsApp([
         'مرحبًا mas Cool، أرغب في الاستفسار عن معدة.',
         `الاسم: ${data.get('name')}`,
@@ -827,6 +899,36 @@ document.querySelector('#inquiry').addEventListener('submit',e=>{
     ].join('\n'));
 });
 document.querySelector('#year').textContent=new Date().getFullYear();
+
+@if($isPreview)
+/* ---------- editor preview bridge ---------- */
+(function(){
+    const ORIGIN=@json(config('app.url'));
+    const allowed=[location.origin, ORIGIN].filter(Boolean);
+    /* WhatsApp must never actually open while previewing inside the dashboard */
+    document.addEventListener('click',e=>{
+        const wa=e.target.closest('[data-whatsapp-message],a[href^="https://wa.me"]');
+        if(wa){e.preventDefault();e.stopImmediatePropagation();}
+        const sec=e.target.closest('[data-section]');
+        if(sec&&parent!==window){
+            e.preventDefault();
+            parent.postMessage({source:'mascool-preview',action:'select',section:sec.dataset.section},allowed[0]);
+        }
+    },true);
+    function highlight(key){
+        document.querySelectorAll('[data-section]').forEach(el=>el.classList.toggle('is-highlighted',el.dataset.section===key));
+        const target=document.querySelector('[data-section="'+CSS.escape(key)+'"]');
+        if(target)target.scrollIntoView({block:'start',behavior:'smooth'});
+    }
+    addEventListener('message',e=>{
+        if(!allowed.includes(e.origin))return;                 // validate origin
+        const d=e.data;
+        if(!d||d.source!=='mascool-editor')return;
+        if(d.action==='highlight')highlight(d.section);
+    });
+    if(parent!==window)parent.postMessage({source:'mascool-preview',action:'ready'},allowed[0]);
+})();
+@endif
 const header=document.querySelector('.header');
 const progressBar=document.querySelector('.scroll-progress span');
 let scrollTick=false;

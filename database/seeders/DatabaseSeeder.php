@@ -37,6 +37,7 @@ class DatabaseSeeder extends Seeder
             ContactSettingSeeder::class,
             CounterSeeder::class,
             CoolingSystemDataSeeder::class,
+            MasCoolHomePageSeeder::class,
         ]);
     }
 }
